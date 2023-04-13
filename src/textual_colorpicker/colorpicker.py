@@ -27,6 +27,7 @@ class ColorPicker(Widget, can_focus=True):
     ColorPicker .label {
         padding: 1 1;
         text-align: right;
+        text-style: underline;
     }
     """
 
