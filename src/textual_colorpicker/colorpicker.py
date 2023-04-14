@@ -65,7 +65,7 @@ class ColorPicker(Widget, can_focus=True):
             yield Static("B", classes="label")
             yield IntegerInput(0, id="blue", classes="input")
             yield Static("A", classes="label")
-            yield Input("1.0", id="alpha", classes="input")
+            yield FloatInput(1.0, id="alpha", classes="input")
 
     def compose(self) -> ComposeResult:
         yield self.RgbaForm()
@@ -141,3 +141,41 @@ class IntegerInput(Input):
             pass
         else:
             super().insert_text_at_cursor(text)
+
+
+class FloatInput(Input):
+    def __init__(
+        self,
+        value: float | None = None,
+        placeholder: str = "",
+        highlighter: Highlighter | None = None,
+        password: bool = False,
+        name: str | None = None,
+        id: str | None = None,
+        classes: str | None = None,
+        disabled: bool = False,
+    ) -> None:
+        super().__init__(
+            value=str(value),
+            placeholder=placeholder,
+            highlighter=highlighter,
+            password=password,
+            name=name,
+            id=id,
+            classes=classes,
+            disabled=disabled,
+        )
+
+    def insert_text_at_cursor(self, text: str) -> None:
+        if text == ".":
+            if "." in self.value:
+                pass
+            else:
+                super().insert_text_at_cursor(text)
+        else:
+            try:
+                int(text)
+            except ValueError:
+                pass
+            else:
+                super().insert_text_at_cursor(text)
