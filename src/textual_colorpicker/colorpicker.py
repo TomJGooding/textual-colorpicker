@@ -1,5 +1,6 @@
 from typing import ClassVar
 
+from rich.highlighter import Highlighter
 from textual.app import ComposeResult
 from textual.binding import Binding, BindingType
 from textual.color import Color
@@ -58,11 +59,11 @@ class ColorPicker(Widget, can_focus=True):
 
         def compose(self) -> ComposeResult:
             yield Static("R", classes="label")
-            yield Input("0", id="red", classes="input")
+            yield IntegerInput(0, id="red", classes="input")
             yield Static("G", classes="label")
-            yield Input("0", id="green", classes="input")
+            yield IntegerInput(0, id="green", classes="input")
             yield Static("B", classes="label")
-            yield Input("0", id="blue", classes="input")
+            yield IntegerInput(0, id="blue", classes="input")
             yield Static("A", classes="label")
             yield Input("1.0", id="alpha", classes="input")
 
@@ -108,3 +109,35 @@ class ColorPicker(Widget, can_focus=True):
 
     def action_focus_alpha(self) -> None:
         self.query_one("#alpha", Input).focus()
+
+
+class IntegerInput(Input):
+    def __init__(
+        self,
+        value: int | None = None,
+        placeholder: str = "",
+        highlighter: Highlighter | None = None,
+        password: bool = False,
+        name: str | None = None,
+        id: str | None = None,
+        classes: str | None = None,
+        disabled: bool = False,
+    ) -> None:
+        super().__init__(
+            value=str(value),
+            placeholder=placeholder,
+            highlighter=highlighter,
+            password=password,
+            name=name,
+            id=id,
+            classes=classes,
+            disabled=disabled,
+        )
+
+    def insert_text_at_cursor(self, text: str) -> None:
+        try:
+            _ = int(text)
+        except ValueError:
+            pass
+        else:
+            super().insert_text_at_cursor(text)
