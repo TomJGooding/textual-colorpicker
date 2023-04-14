@@ -136,7 +136,7 @@ class IntegerInput(Input):
 
     def insert_text_at_cursor(self, text: str) -> None:
         try:
-            _ = int(text)
+            int(text)
         except ValueError:
             pass
         else:
