@@ -15,3 +15,8 @@ class ColorPickerApp(App):
 
     def on_mount(self) -> None:
         self.query_one(ColorPicker).focus()
+
+
+if __name__ == "__main__":
+    app = ColorPickerApp()
+    app.run()
