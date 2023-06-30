@@ -8,7 +8,7 @@ from textual.containers import Container
 from textual.reactive import reactive
 from textual.validation import Integer
 from textual.widget import Widget
-from textual.widgets import Input, Static
+from textual.widgets import Input, Label, Static
 
 
 class RgbInput(Input):
@@ -28,6 +28,32 @@ class RgbInput(Input):
             classes=classes,
             disabled=disabled,
         )
+
+
+class RgbTuner(Container):
+    DEFAULT_CSS = """
+    RgbTuner {
+        height: auto;
+        layout: grid;
+        grid-size: 2 3;
+        grid-rows: 4;
+        grid-columns: 3 10;
+    }
+
+    RgbTuner > Label {
+        padding: 1 1;
+        text-align: right;
+        text-style: underline;
+    }
+    """
+
+    def compose(self) -> ComposeResult:
+        yield Label("R")
+        yield RgbInput(str(0), id="red", classes="input")
+        yield Label("G")
+        yield RgbInput(str(0), id="green", classes="input")
+        yield Label("B")
+        yield RgbInput(str(0), id="blue", classes="input")
 
 
 class ColorPicker(Widget, can_focus=True):
@@ -58,33 +84,8 @@ class ColorPicker(Widget, can_focus=True):
     blue = reactive(0)
     color = reactive(Color(r=0, g=0, b=0))
 
-    class RgbForm(Container):
-        DEFAULT_CSS = """
-        RgbForm {
-            height: auto;
-            layout: grid;
-            grid-size: 2 3;
-            grid-rows: 4;
-            grid-columns: 3 10;
-        }
-
-        RgbForm .label {
-            padding: 1 1;
-            text-align: right;
-            text-style: underline;
-        }
-        """
-
-        def compose(self) -> ComposeResult:
-            yield Static("R", classes="label")
-            yield RgbInput(str(0), id="red", classes="input")
-            yield Static("G", classes="label")
-            yield RgbInput(str(0), id="green", classes="input")
-            yield Static("B", classes="label")
-            yield RgbInput(str(0), id="blue", classes="input")
-
     def compose(self) -> ComposeResult:
-        yield self.RgbForm()
+        yield RgbTuner()
         yield Static(id="color-preview")
 
     def compute_color(self) -> Color:
