@@ -93,22 +93,17 @@ class ColorPicker(Widget, can_focus=True):
     def watch_color(self, color: Color) -> None:
         self.query_one("#color-preview").styles.background = color
 
-    @on(RgbInput.Changed, "#red")
-    def on_red_input_changed(self, event: RgbInput.Changed) -> None:
+    @on(RgbInput.Changed)
+    def on_rgb_input_changed(self, event: RgbInput.Changed) -> None:
         assert event.validation_result is not None
-        if event.validation_result.is_valid:
+        if not event.validation_result.is_valid:
+            return
+
+        if event.input.id == "red":
             self.red = int(event.value)
-
-    @on(RgbInput.Changed, "#green")
-    def on_green_input_changed(self, event: RgbInput.Changed) -> None:
-        assert event.validation_result is not None
-        if event.validation_result.is_valid:
+        elif event.input.id == "green":
             self.green = int(event.value)
-
-    @on(RgbInput.Changed, "#blue")
-    def on_blue_input_changed(self, event: RgbInput.Changed) -> None:
-        assert event.validation_result is not None
-        if event.validation_result.is_valid:
+        elif event.input.id == "blue":
             self.blue = int(event.value)
 
     def action_focus_red(self) -> None:
