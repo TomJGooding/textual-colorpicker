@@ -4,7 +4,7 @@ from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding, BindingType
 from textual.color import Color
-from textual.containers import Container
+from textual.containers import Horizontal
 from textual.reactive import reactive
 from textual.validation import Integer
 from textual.widget import Widget
@@ -12,6 +12,12 @@ from textual.widgets import Input, Label, Static
 
 
 class RgbInput(Input):
+    DEFAULT_CSS = """
+    RgbInput {
+        width: 10;
+    }
+    """
+
     def __init__(
         self,
         value: str | None = None,
@@ -30,30 +36,34 @@ class RgbInput(Input):
         )
 
 
-class RgbTuner(Container):
+class RgbTuner(Widget):
     DEFAULT_CSS = """
     RgbTuner {
         height: auto;
-        layout: grid;
-        grid-size: 2 3;
-        grid-rows: 4;
-        grid-columns: 3 10;
+        width: auto;
     }
 
-    RgbTuner > Label {
-        padding: 1 1;
-        text-align: right;
+    RgbTuner Horizontal {
+        height: auto;
+        width: auto;
+    }
+
+    RgbTuner Label {
+        padding: 1;
         text-style: underline;
     }
     """
 
     def compose(self) -> ComposeResult:
-        yield Label("R")
-        yield RgbInput(str(0), id="red", classes="input")
-        yield Label("G")
-        yield RgbInput(str(0), id="green", classes="input")
-        yield Label("B")
-        yield RgbInput(str(0), id="blue", classes="input")
+        with Horizontal():
+            yield Label("R")
+            yield RgbInput(str(0), id="red", classes="input")
+        with Horizontal():
+            yield Label("G")
+            yield RgbInput(str(0), id="green", classes="input")
+        with Horizontal():
+            yield Label("B")
+            yield RgbInput(str(0), id="blue", classes="input")
 
 
 class ColorPicker(Widget, can_focus=True):
