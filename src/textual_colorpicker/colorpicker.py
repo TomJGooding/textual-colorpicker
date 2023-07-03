@@ -9,6 +9,7 @@ from textual.reactive import var
 from textual.validation import Integer
 from textual.widget import Widget
 from textual.widgets import Input, Label, Static
+from textual_slider import Slider
 
 
 class RgbInput(Input):
@@ -50,7 +51,19 @@ class RgbTuner(Widget):
 
     RgbTuner Label {
         padding: 1;
-        text-style: underline;
+        text-style: bold;
+    }
+
+    RgbTuner #red-slider .slider--slider {
+        color: red;
+    }
+
+    RgbTuner #green-slider .slider--slider {
+        color: green;
+    }
+
+    RgbTuner #blue-slider .slider--slider {
+        color: blue;
     }
     """
 
@@ -78,26 +91,57 @@ class RgbTuner(Widget):
     def compose(self) -> ComposeResult:
         with Horizontal():
             yield Label("R")
-            yield RgbInput(str(0), id="red", classes="input")
+            yield Slider(min=0, max=255, id="red-slider")
+            yield RgbInput(str(0), id="red-input", classes="input")
         with Horizontal():
             yield Label("G")
-            yield RgbInput(str(0), id="green", classes="input")
+            yield Slider(min=0, max=255, id="green-slider")
+            yield RgbInput(str(0), id="green-input", classes="input")
         with Horizontal():
             yield Label("B")
-            yield RgbInput(str(0), id="blue", classes="input")
+            yield Slider(min=0, max=255, id="blue-slider")
+            yield RgbInput(str(0), id="blue-input", classes="input")
 
     @on(RgbInput.Changed)
     def on_rgb_input_changed(self, event: RgbInput.Changed) -> None:
         assert event.validation_result is not None
         if not event.validation_result.is_valid:
             return
+        new_value: int = int(event.value)
+        if event.input.id == "red-input":
+            self.red = new_value
+            red_slider = self.query_one("#red-slider", Slider)
+            with red_slider.prevent(Slider.Changed):
+                red_slider.value = new_value
+        elif event.input.id == "green-input":
+            self.green = new_value
+            green_slider = self.query_one("#green-slider", Slider)
+            with green_slider.prevent(Slider.Changed):
+                green_slider.value = new_value
+        elif event.input.id == "blue-input":
+            self.blue = new_value
+            blue_slider = self.query_one("#blue-slider", Slider)
+            with blue_slider.prevent(Slider.Changed):
+                blue_slider.value = new_value
 
-        if event.input.id == "red":
-            self.red = int(event.value)
-        elif event.input.id == "green":
-            self.green = int(event.value)
-        elif event.input.id == "blue":
-            self.blue = int(event.value)
+    @on(Slider.Changed)
+    def on_rgb_slider_changed(self, event: Slider.Changed) -> None:
+        new_value: int = event.value
+        if event.slider.id == "red-slider":
+            self.red = new_value
+            red_input = self.query_one("#red-input", RgbInput)
+            with red_input.prevent(Input.Changed):
+                red_input.value = str(new_value)
+        elif event.slider.id == "green-slider":
+            self.green = new_value
+            green_input = self.query_one("#green-input", RgbInput)
+            with green_input.prevent(Input.Changed):
+                green_input.value = str(new_value)
+        elif event.slider.id == "blue-slider":
+            self.blue = new_value
+            blue_input = self.query_one("#blue-input", RgbInput)
+            with blue_input.prevent(Input.Changed):
+                blue_input.value = str(new_value)
 
 
 class ColorPicker(Widget):
