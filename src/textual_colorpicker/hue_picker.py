@@ -18,7 +18,7 @@ _GRADIENT_COLORS = [
 ]
 
 
-class HuePicker(Widget, can_focus=True):
+class HuePicker(Widget):
     DEFAULT_CSS = """
     HuePicker {
         height: 2;
