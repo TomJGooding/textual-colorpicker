@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 from rich.color import Color as RichColor
 from rich.segment import Segment
 from rich.style import Style
 from textual import events
 from textual.color import Gradient
 from textual.geometry import clamp
+from textual.message import Message
 from textual.reactive import reactive
 from textual.strip import Strip
 from textual.widget import Widget
@@ -33,8 +36,23 @@ class HuePicker(Widget):
         ]
     )
 
-    hue: reactive[float] = reactive(0.0)
+    hue: reactive[float] = reactive(0.0, init=False)
     """Hue in range 0 to 1."""
+
+    class Changed(Message):
+        """Posted when the hue value changes.
+
+        This message can be handled using an `on_hue_picker_changed` method.
+        """
+
+        def __init__(self, hue_picker: HuePicker, hue: float) -> None:
+            super().__init__()
+            self.hue: float = hue
+            self.hue_picker: HuePicker = hue_picker
+
+        @property
+        def control(self) -> HuePicker:
+            return self.hue_picker
 
     def __init__(
         self,
@@ -86,6 +104,9 @@ class HuePicker(Widget):
 
     def validate_hue(self, hue: float) -> float:
         return clamp(hue, 0.0, 1.0)
+
+    def watch_hue(self) -> None:
+        self.post_message(self.Changed(self, self.hue))
 
     async def _on_click(self, event: events.Click) -> None:
         mouse_x_norm = event.x / (self.content_size.width - 1)
