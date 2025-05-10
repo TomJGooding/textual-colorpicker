@@ -22,11 +22,11 @@ class HuePickerApp(App):
 
 
 def test_hue_value_is_clamped():
-    hue_picker = HuePicker(hue=99.0)
-    assert hue_picker.hue == 1.0
+    hue_picker = HuePicker(value=99.0)
+    assert hue_picker.value == 1.0
 
-    hue_picker.hue = -99.0
-    assert hue_picker.hue == 0.0
+    hue_picker.value = -99.0
+    assert hue_picker.value == 0.0
 
 
 async def test_clicking_updates_hue_value():
@@ -34,7 +34,7 @@ async def test_clicking_updates_hue_value():
     async with app.run_test() as pilot:
         hue_picker = pilot.app.query_one(HuePicker)
         await pilot.click(HuePicker, offset=(17, 0))
-        assert hue_picker.hue == 0.5
+        assert hue_picker.value == 0.5
 
 
 async def test_changed_hue_posts_message():
@@ -44,7 +44,7 @@ async def test_changed_hue_posts_message():
         expected_messages = []
         assert app.messages == expected_messages
 
-        hue_picker.hue = 1.0
+        hue_picker.value = 1.0
         await pilot.pause()
         expected_messages.append("Changed")
         assert app.messages == expected_messages

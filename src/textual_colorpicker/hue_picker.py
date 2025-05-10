@@ -36,8 +36,8 @@ class HuePicker(Widget):
         ]
     )
 
-    hue: reactive[float] = reactive(0.0, init=False)
-    """Hue in range 0 to 1."""
+    value: reactive[float] = reactive(0.0, init=False)
+    """Hue value in the range 0 to 1."""
 
     class Changed(Message):
         """Posted when the hue value changes.
@@ -45,9 +45,9 @@ class HuePicker(Widget):
         This message can be handled using an `on_hue_picker_changed` method.
         """
 
-        def __init__(self, hue_picker: HuePicker, hue: float) -> None:
+        def __init__(self, hue_picker: HuePicker, value: float) -> None:
             super().__init__()
-            self.hue: float = hue
+            self.value: float = value
             self.hue_picker: HuePicker = hue_picker
 
         @property
@@ -56,7 +56,7 @@ class HuePicker(Widget):
 
     def __init__(
         self,
-        hue: float = 0.0,
+        value: float = 0.0,
         *,
         name: str | None = None,
         id: str | None = None,
@@ -64,11 +64,11 @@ class HuePicker(Widget):
         disabled: bool = False,
     ) -> None:
         super().__init__(name=name, id=id, classes=classes, disabled=disabled)
-        self.hue = hue
+        self.value = value
         """Create a hue picker widget.
 
         Args:
-            hue: The initial hue value in the range 0-1.
+            value: The initial hue value in the range 0-1.
             name: The name of the widget.
             id: The ID of the widget in the DOM.
             classes: The CSS classes of the widget.
@@ -84,7 +84,7 @@ class HuePicker(Widget):
         black = RichColor.from_rgb(0, 0, 0)
         white = RichColor.from_rgb(255, 255, 255)
 
-        arrow_x = int(self.hue * (width - 1))
+        arrow_x = int(self.value * (width - 1))
         arrow_icon, arrow_color = ("▼", black) if y == 0 else ("▲", white)
 
         segments = [
@@ -102,15 +102,15 @@ class HuePicker(Widget):
 
         return Strip(segments)
 
-    def validate_hue(self, hue: float) -> float:
-        return clamp(hue, 0.0, 1.0)
+    def validate_value(self, value: float) -> float:
+        return clamp(value, 0.0, 1.0)
 
-    def watch_hue(self) -> None:
-        self.post_message(self.Changed(self, self.hue))
+    def watch_value(self) -> None:
+        self.post_message(self.Changed(self, self.value))
 
     async def _on_click(self, event: events.Click) -> None:
         mouse_x_norm = event.x / (self.content_size.width - 1)
-        self.hue = mouse_x_norm
+        self.value = mouse_x_norm
 
 
 if __name__ == "__main__":
