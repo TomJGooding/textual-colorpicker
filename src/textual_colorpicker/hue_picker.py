@@ -64,3 +64,24 @@ class HuePicker(Widget):
     async def _on_click(self, event: events.Click) -> None:
         mouse_x_norm = event.x / (self.content_size.width - 1)
         self._slider_position = mouse_x_norm
+
+
+if __name__ == "__main__":
+    from textual.app import App, ComposeResult
+
+    class HuePickerApp(App):
+        CSS = """
+        Screen {
+            align: center middle;
+        }
+
+        HuePicker {
+            width: 80%;
+        }
+        """
+
+        def compose(self) -> ComposeResult:
+            yield HuePicker()
+
+    app = HuePickerApp()
+    app.run()
