@@ -28,12 +28,7 @@ class HuePicker(Widget):
     }
     """
 
-    _GRADIENT = Gradient(
-        *[
-            (i / (len(_GRADIENT_COLORS) - 1), color)
-            for i, color in enumerate(_GRADIENT_COLORS)
-        ]
-    )
+    _GRADIENT = Gradient.from_colors(*_GRADIENT_COLORS)
 
     value: reactive[float] = reactive(0.0, init=False)
     """Hue value in the range 0 to 1."""
