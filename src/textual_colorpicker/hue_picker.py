@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from rich.color import Color as RichColor
 from rich.segment import Segment
 from rich.style import Style
 from textual import events
-from textual.color import Gradient
+from textual.color import BLACK, WHITE, Gradient
 from textual.geometry import clamp
 from textual.message import Message
 from textual.reactive import reactive
@@ -81,18 +80,15 @@ class HuePicker(Widget):
         get_color = self._GRADIENT.get_rich_color
         from_color = Style.from_color
 
-        black = RichColor.from_rgb(0, 0, 0)
-        white = RichColor.from_rgb(255, 255, 255)
-
         arrow_x = int(self.value * (width - 1))
-        arrow_icon, arrow_color = ("▼", black) if y == 0 else ("▲", white)
+        arrow_icon, arrow_color = ("▼", BLACK) if y == 0 else ("▲", WHITE)
 
         segments = [
             (
                 Segment(
                     arrow_icon if x == arrow_x else " ",
                     from_color(
-                        arrow_color,
+                        arrow_color.rich_color,
                         get_color(x / (width - 1)),
                     ),
                 )
