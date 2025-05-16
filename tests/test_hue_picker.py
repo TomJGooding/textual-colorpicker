@@ -37,6 +37,21 @@ async def test_clicking_updates_hue_value():
         assert hue_picker.value == 0.5
 
 
+async def test_clicking_outside_content_is_noop():
+    app = HuePickerApp()
+    async with app.run_test() as pilot:
+        hue_picker = pilot.app.query_one(HuePicker)
+        hue_picker.styles.padding = (0, 2)
+        expected_value = 0.0
+        assert hue_picker.value == expected_value  # Sanity check
+
+        await pilot.click(HuePicker, offset=(1, 0))
+        assert hue_picker.value == expected_value  # No change
+
+        await pilot.click(HuePicker, offset=(33, 0))
+        assert hue_picker.value == expected_value  # No change
+
+
 async def test_changed_hue_posts_message():
     app = HuePickerApp()
     async with app.run_test() as pilot:

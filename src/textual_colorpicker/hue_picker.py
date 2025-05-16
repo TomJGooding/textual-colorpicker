@@ -100,7 +100,10 @@ class HuePicker(Widget):
         self.post_message(self.Changed(self, self.value))
 
     async def _on_mouse_down(self, event: events.MouseDown) -> None:
-        mouse_x_norm = event.x / (self.content_size.width - 1)
+        mouse_offset = event.get_content_offset(self)
+        if mouse_offset is None:
+            return
+        mouse_x_norm = mouse_offset.x / (self.content_size.width - 1)
         self.value = mouse_x_norm
 
 

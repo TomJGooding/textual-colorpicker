@@ -42,6 +42,21 @@ async def test_clicking_updates_hsv_value():
         assert saturation_value_picker.hsv.v == 0.5
 
 
+async def test_clicking_outside_content_is_noop():
+    app = SaturationValuePickerApp()
+    async with app.run_test() as pilot:
+        saturation_value_picker = pilot.app.query_one(SaturationValuePicker)
+        saturation_value_picker.styles.padding = (0, 2)
+        expected_hsv = HSV(0.0, 1.0, 1.0)
+        assert saturation_value_picker.hsv == expected_hsv  # Sanity check
+
+        await pilot.click(SaturationValuePicker, offset=(1, 0))
+        assert saturation_value_picker.hsv == expected_hsv  # No change
+
+        await pilot.click(SaturationValuePicker, offset=(33, 0))
+        assert saturation_value_picker.hsv == expected_hsv  # No change
+
+
 async def test_changed_hsv_posts_message():
     app = SaturationValuePickerApp()
     async with app.run_test() as pilot:

@@ -104,11 +104,13 @@ class SaturationValuePicker(Widget):
         self.post_message(self.Changed(self, self.hsv))
 
     async def _on_mouse_down(self, event: events.MouseDown) -> None:
+        mouse_offset = event.get_content_offset(self)
+        if mouse_offset is None:
+            return
         width = self.content_size.width
         height = self.content_size.height
-
-        mouse_y_norm = event.y / (height - 1)
-        mouse_x_norm = event.x / (width - 1)
+        mouse_y_norm = mouse_offset.y / (height - 1)
+        mouse_x_norm = mouse_offset.x / (width - 1)
 
         hue = self.hsv.h
         saturation = mouse_x_norm
