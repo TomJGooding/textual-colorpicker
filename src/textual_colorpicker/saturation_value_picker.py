@@ -44,8 +44,6 @@ class SaturationValuePicker(Widget):
         classes: str | None = None,
         disabled: bool = False,
     ) -> None:
-        super().__init__(name=name, id=id, classes=classes, disabled=disabled)
-        self.hsv = hsv
         """Create a two-dimensional saturation/value picker widget.
 
         Args:
@@ -55,6 +53,8 @@ class SaturationValuePicker(Widget):
             classes: The CSS classes of the widget.
             disabled: Whether the widget is disabled or not.
         """
+        super().__init__(name=name, id=id, classes=classes, disabled=disabled)
+        self.hsv = hsv
 
     def render_line(self, y: int) -> Strip:
         width = self.content_size.width

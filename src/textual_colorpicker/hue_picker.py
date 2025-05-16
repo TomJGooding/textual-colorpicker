@@ -57,8 +57,6 @@ class HuePicker(Widget):
         classes: str | None = None,
         disabled: bool = False,
     ) -> None:
-        super().__init__(name=name, id=id, classes=classes, disabled=disabled)
-        self.value = value
         """Create a hue picker widget.
 
         Args:
@@ -68,6 +66,8 @@ class HuePicker(Widget):
             classes: The CSS classes of the widget.
             disabled: Whether the widget is disabled or not.
         """
+        super().__init__(name=name, id=id, classes=classes, disabled=disabled)
+        self.value = value
 
     def render_line(self, y: int) -> Strip:
         width = self.content_size.width
