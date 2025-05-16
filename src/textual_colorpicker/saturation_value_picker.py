@@ -103,7 +103,7 @@ class SaturationValuePicker(Widget):
     def watch_hsv(self) -> None:
         self.post_message(self.Changed(self, self.hsv))
 
-    async def _on_click(self, event: events.Click) -> None:
+    async def _on_mouse_down(self, event: events.MouseDown) -> None:
         width = self.content_size.width
         height = self.content_size.height
 

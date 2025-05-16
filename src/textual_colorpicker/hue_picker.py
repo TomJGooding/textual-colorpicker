@@ -99,7 +99,7 @@ class HuePicker(Widget):
     def watch_value(self) -> None:
         self.post_message(self.Changed(self, self.value))
 
-    async def _on_click(self, event: events.Click) -> None:
+    async def _on_mouse_down(self, event: events.MouseDown) -> None:
         mouse_x_norm = event.x / (self.content_size.width - 1)
         self.value = mouse_x_norm
 
