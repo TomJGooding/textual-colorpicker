@@ -68,6 +68,7 @@ class HuePicker(Widget):
         """
         super().__init__(name=name, id=id, classes=classes, disabled=disabled)
         self.value = value
+        self._grabbed = False
 
     def render_line(self, y: int) -> Strip:
         width = self.content_size.width
@@ -105,6 +106,20 @@ class HuePicker(Widget):
             return
         mouse_x_norm = mouse_offset.x / (self.content_size.width - 1)
         self.value = mouse_x_norm
+
+        self._grabbed = True
+        self.capture_mouse(True)
+
+    async def _on_mouse_move(self, event: events.MouseMove) -> None:
+        mouse_offset = event.get_content_offset(self)
+        if self._grabbed and mouse_offset is not None:
+            mouse_x_norm = mouse_offset.x / (self.content_size.width - 1)
+            self.value = mouse_x_norm
+
+    async def _on_mouse_up(self, event: events.MouseUp) -> None:
+        if self._grabbed:
+            self._grabbed = False
+            self.release_mouse()
 
 
 if __name__ == "__main__":
