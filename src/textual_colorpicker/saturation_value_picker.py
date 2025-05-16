@@ -1,24 +1,16 @@
 from __future__ import annotations
 
-from colorsys import hsv_to_rgb
-
 from rich.segment import Segment
 from rich.style import Style
 from textual import events
-from textual.color import HSV, WHITE, Color
+from textual.color import HSV, WHITE
 from textual.geometry import clamp
 from textual.message import Message
 from textual.reactive import reactive
 from textual.strip import Strip
 from textual.widget import Widget
 
-
-# NOTE: Currently Textual's `Color` class is missing HSV support.
-# I've submitted a pull request to add a `Color.from_hsv` class method here:
-# https://github.com/Textualize/textual/pull/5803
-def _color_from_hsv(h: float, s: float, v: float) -> Color:
-    r, g, b = hsv_to_rgb(h, s, v)
-    return Color(int(r * 255 + 0.5), int(g * 255 + 0.5), int(b * 255 + 0.5))
+from textual_colorpicker._color_hsv import _color_from_hsv
 
 
 class SaturationValuePicker(Widget):
