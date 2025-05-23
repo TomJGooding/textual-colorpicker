@@ -147,20 +147,31 @@ class HsvInputs(Widget):
     hsv: var[HSV] = var(HSV(0.0, 1.0, 1.0), init=False)
 
     def compose(self) -> ComposeResult:
-        h, s, v = self.hsv_integer_values
+        h, s, v = self._hsv_scaled_values(self.hsv)
         with HorizontalGroup():
             yield Label("H:")
-            yield Input(str(h), id="--hue-input")
+            yield Input(
+                str(h),
+                validators=Integer(0, 360),
+                id="--hue-input",
+            )
         with HorizontalGroup():
             yield Label("S:")
-            yield Input(str(s), id="--saturation-input")
+            yield Input(
+                str(s),
+                validators=Integer(0, 100),
+                id="--saturation-input",
+            )
         with HorizontalGroup():
             yield Label("V:")
-            yield Input(str(v), id="--value-input")
+            yield Input(
+                str(v),
+                validators=Integer(0, 100),
+                id="--value-input",
+            )
 
     def validate_hsv(self, hsv: HSV) -> HSV:
         h, s, v = hsv
-
         clamped_hsv = HSV(
             clamp(h, 0.0, 1.0),
             clamp(s, 0.0, 1.0),
@@ -170,17 +181,62 @@ class HsvInputs(Widget):
         return clamped_hsv
 
     def watch_hsv(self) -> None:
-        h, s, v = self.hsv_integer_values
-        self.query_one("#--hue-input", Input).value = str(h)
-        self.query_one("#--saturation-input", Input).value = str(s)
-        self.query_one("#--value-input", Input).value = str(v)
+        self._update_all_from_hsv(self.hsv)
 
-    @property
-    def hsv_integer_values(self) -> tuple[int, int, int]:
-        h = int(self.hsv.h * 360 + 0.5)
-        s = int(self.hsv.s * 100 + 0.5)
-        v = int(self.hsv.v * 100 + 0.5)
-        return (h, s, v)
+    def _hsv_scaled_values(self, hsv: HSV) -> tuple[int, int, int]:
+        h = int(hsv.h * 360 + 0.5)
+        s = int(hsv.s * 100 + 0.5)
+        v = int(hsv.v * 100 + 0.5)
+
+        return h, s, v
+
+    def _update_all_from_hsv(self, hsv: HSV) -> None:
+        hue_input = self.query_one("#--hue-input", Input)
+        saturation_input = self.query_one("#--saturation-input", Input)
+        value_input = self.query_one("#--value-input", Input)
+
+        h, s, v = self._hsv_scaled_values(hsv)
+
+        hue_input.value = str(h)
+        saturation_input.value = str(s)
+        value_input.value = str(v)
+
+        # Force a re-validation of the input selections.
+        # Workaround for https://github.com/Textualize/textual/issues/5811
+        hue_input.selection = hue_input.selection
+        saturation_input.selection = saturation_input.selection
+        value_input.selection = value_input.selection
+
+    @on(Input.Blurred)
+    @on(Input.Submitted)
+    def _on_input_blurred_or_submitted(
+        self, event: Input.Blurred | Input.Submitted
+    ) -> None:
+        event.stop()
+        validation_result = event.validation_result
+        assert validation_result is not None
+        # If the value is not a number, set the input to zero.
+        if not validation_result.is_valid:
+            if any(
+                isinstance(failure, Integer.NotANumber)
+                for failure in validation_result.failures
+            ):
+                event.input.value = str(0)
+
+        # If the value is a float, round to the nearest integer.
+        h = int(float(self.query_one("#--hue-input", Input).value) + 0.5)
+        s = int(float(self.query_one("#--saturation-input", Input).value) + 0.5)
+        v = int(float(self.query_one("#--value-input", Input).value) + 0.5)
+
+        clamped_hsv = HSV(
+            clamp(h / 360, 0.0, 1.0),
+            clamp(s / 100, 0.0, 1.0),
+            clamp(v / 100, 0.0, 1.0),
+        )
+        # If the value is not in range, set the input to the clamped value.
+        self._update_all_from_hsv(clamped_hsv)
+
+        self.hsv = clamped_hsv
 
 
 class HexInput(Widget):
@@ -236,7 +292,7 @@ class ColorInputs(Widget):
     def compose(self) -> ComposeResult:
         with HorizontalGroup():
             yield RgbInputs()
-            yield HsvInputs(disabled=True)
+            yield HsvInputs()
         yield HexInput(disabled=True)
 
     def watch_color(self) -> None:
