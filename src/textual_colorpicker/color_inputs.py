@@ -11,7 +11,7 @@ from textual.validation import Integer
 from textual.widget import Widget
 from textual.widgets import Input, Label
 
-from textual_colorpicker._color_hsv import _hsv_from_color
+from textual_colorpicker._color_hsv import _color_from_hsv, _hsv_from_color
 
 
 class RgbInputs(Widget):
@@ -146,6 +146,16 @@ class HsvInputs(Widget):
 
     hsv: var[HSV] = var(HSV(0.0, 1.0, 1.0), init=False)
 
+    class Changed(Message):
+        def __init__(self, hsv_inputs: HsvInputs, hsv: HSV) -> None:
+            super().__init__()
+            self.hsv: HSV = hsv
+            self.hsv_inputs: HsvInputs = hsv_inputs
+
+        @property
+        def control(self) -> HsvInputs:
+            return self.hsv_inputs
+
     def compose(self) -> ComposeResult:
         h, s, v = self._hsv_scaled_values(self.hsv)
         with HorizontalGroup():
@@ -182,6 +192,8 @@ class HsvInputs(Widget):
 
     def watch_hsv(self) -> None:
         self._update_all_from_hsv(self.hsv)
+
+        self.post_message(self.Changed(self, self.hsv))
 
     def _hsv_scaled_values(self, hsv: HSV) -> tuple[int, int, int]:
         h = int(hsv.h * 360 + 0.5)
@@ -303,7 +315,13 @@ class ColorInputs(Widget):
         self.query_one(HexInput).value = hex_value
 
     def _on_rgb_inputs_changed(self, event: RgbInputs.Changed) -> None:
+        event.stop()
         self.color = event.color
+
+    def _on_hsv_inputs_changed(self, event: HsvInputs.Changed) -> None:
+        event.stop()
+        color = _color_from_hsv(*event.hsv)
+        self.color = color
 
 
 if __name__ == "__main__":
