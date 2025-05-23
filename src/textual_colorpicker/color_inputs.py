@@ -7,7 +7,7 @@ from textual.containers import HorizontalGroup
 from textual.geometry import clamp
 from textual.message import Message
 from textual.reactive import var
-from textual.validation import Integer
+from textual.validation import Integer, Regex
 from textual.widget import Widget
 from textual.widgets import Input, Label
 
@@ -271,15 +271,59 @@ class HexInput(Widget):
     }
     """
 
-    value: var[str] = var("ff0000", init=False)
+    # TODO: Allow shorthand hex values
+    _HEX_VALUE_PATTERN = r"[0-9a-fA-F]{6}"
+
+    value: var[str] = var("#FF0000", init=False)
+
+    class Changed(Message):
+        def __init__(self, hex_input: HexInput, value: str) -> None:
+            super().__init__()
+            self.value: str = value
+            self.hex_input = hex_input
+
+        @property
+        def control(self) -> HexInput:
+            return self.hex_input
 
     def compose(self) -> ComposeResult:
+        hex_value = self._format_hex_value(self.value)
         with HorizontalGroup():
             yield Label("#")
-            yield Input(self.value)
+            yield Input(
+                hex_value,
+                validators=Regex(self._HEX_VALUE_PATTERN),
+            )
 
-    def _watch_value(self, value: str) -> None:
-        self.query_one(Input).value = value
+    def watch_value(self) -> None:
+        hex_value = self._format_hex_value(self.value)
+        self.query_one(Input).value = hex_value
+
+        self.post_message(self.Changed(self, self.value))
+
+    def _format_hex_value(self, hex: str) -> str:
+        return hex.lower().lstrip("#")
+
+    @on(Input.Blurred)
+    @on(Input.Submitted)
+    def _on_input_blurred_or_submitted(
+        self, event: Input.Blurred | Input.Submitted
+    ) -> None:
+        event.stop()
+        validation_result = event.validation_result
+        assert validation_result is not None
+        if not validation_result.is_valid:
+            # TODO: If the value is a valid hex but starts with the "#" prefix,
+            # simply strip the "#" from the input.
+            hex_value = self._format_hex_value(self.value)
+            event.input.value = hex_value
+            # Force a re-validation of the input selection.
+            # Workaround for https://github.com/Textualize/textual/issues/5811
+            event.input.selection = event.input.selection
+            return
+
+        hex = f"#{event.value.upper()}"
+        self.value = hex
 
 
 class ColorInputs(Widget):
@@ -305,14 +349,14 @@ class ColorInputs(Widget):
         with HorizontalGroup():
             yield RgbInputs()
             yield HsvInputs()
-        yield HexInput(disabled=True)
+        yield HexInput()
 
     def watch_color(self) -> None:
         h, s, v = _hsv_from_color(self.color)
-        hex_value = self.color.hex.lower().lstrip("#")
+        hex = self.color.hex
         self.query_one(RgbInputs).color = self.color
         self.query_one(HsvInputs).hsv = HSV(h, s, v)
-        self.query_one(HexInput).value = hex_value
+        self.query_one(HexInput).value = hex
 
     def _on_rgb_inputs_changed(self, event: RgbInputs.Changed) -> None:
         event.stop()
@@ -321,6 +365,11 @@ class ColorInputs(Widget):
     def _on_hsv_inputs_changed(self, event: HsvInputs.Changed) -> None:
         event.stop()
         color = _color_from_hsv(*event.hsv)
+        self.color = color
+
+    def _on_hex_input_changed(self, event: HexInput.Changed) -> None:
+        event.stop()
+        color = Color.parse(event.value)
         self.color = color
 
 
