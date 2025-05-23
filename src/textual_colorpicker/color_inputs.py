@@ -345,6 +345,16 @@ class ColorInputs(Widget):
 
     color: var[Color] = var(Color(255, 0, 0), init=False)
 
+    class Changed(Message):
+        def __init__(self, color_inputs: ColorInputs, color: Color) -> None:
+            super().__init__()
+            self.color: Color = color
+            self.color_inputs: ColorInputs = color_inputs
+
+        @property
+        def control(self) -> ColorInputs:
+            return self.color_inputs
+
     def compose(self) -> ComposeResult:
         with HorizontalGroup():
             yield RgbInputs()
@@ -357,6 +367,8 @@ class ColorInputs(Widget):
         self.query_one(RgbInputs).color = self.color
         self.query_one(HsvInputs).hsv = HSV(h, s, v)
         self.query_one(HexInput).value = hex
+
+        self.post_message(self.Changed(self, self.color))
 
     def _on_rgb_inputs_changed(self, event: RgbInputs.Changed) -> None:
         event.stop()
