@@ -3,12 +3,15 @@ from __future__ import annotations
 from textual import on
 from textual.app import ComposeResult
 from textual.color import HSV, Color
-from textual.containers import Container, HorizontalGroup
+from textual.containers import HorizontalGroup
+from textual.geometry import clamp
 from textual.message import Message
 from textual.reactive import var
 from textual.validation import Integer
 from textual.widget import Widget
 from textual.widgets import Input, Label
+
+from textual_colorpicker._color_hsv import _hsv_from_color
 
 
 class RgbInputs(Widget):
@@ -121,9 +124,9 @@ class RgbInputs(Widget):
         self.color = clamped_color
 
 
-class HSVInputs(Widget):
+class HsvInputs(Widget):
     DEFAULT_CSS = """
-    HSVInputs {
+    HsvInputs {
         width: auto;
         height: auto;
 
@@ -144,7 +147,7 @@ class HSVInputs(Widget):
     hsv: var[HSV] = var(HSV(0.0, 1.0, 1.0), init=False)
 
     def compose(self) -> ComposeResult:
-        h, s, v = self.hsv_values
+        h, s, v = self.hsv_integer_values
         with HorizontalGroup():
             yield Label("H:")
             yield Input(str(h), id="--hue-input")
@@ -155,14 +158,25 @@ class HSVInputs(Widget):
             yield Label("V:")
             yield Input(str(v), id="--value-input")
 
-    def _watch_hsv(self) -> None:
-        h, s, v = self.hsv_values
+    def validate_hsv(self, hsv: HSV) -> HSV:
+        h, s, v = hsv
+
+        clamped_hsv = HSV(
+            clamp(h, 0.0, 1.0),
+            clamp(s, 0.0, 1.0),
+            clamp(v, 0.0, 1.0),
+        )
+
+        return clamped_hsv
+
+    def watch_hsv(self) -> None:
+        h, s, v = self.hsv_integer_values
         self.query_one("#--hue-input", Input).value = str(h)
         self.query_one("#--saturation-input", Input).value = str(s)
         self.query_one("#--value-input", Input).value = str(v)
 
     @property
-    def hsv_values(self) -> tuple[int, int, int]:
+    def hsv_integer_values(self) -> tuple[int, int, int]:
         h = int(self.hsv.h * 360 + 0.5)
         s = int(self.hsv.s * 100 + 0.5)
         v = int(self.hsv.v * 100 + 0.5)
@@ -200,7 +214,7 @@ class HexInput(Widget):
         self.query_one(Input).value = value
 
 
-class ColorInputs(Container):
+class ColorInputs(Widget):
     DEFAULT_CSS = """
     ColorInputs {
         width: auto;
@@ -222,12 +236,14 @@ class ColorInputs(Container):
     def compose(self) -> ComposeResult:
         with HorizontalGroup():
             yield RgbInputs()
-            yield HSVInputs(disabled=True)
+            yield HsvInputs(disabled=True)
         yield HexInput(disabled=True)
 
     def watch_color(self) -> None:
+        h, s, v = _hsv_from_color(self.color)
         hex_value = self.color.hex.lower().lstrip("#")
         self.query_one(RgbInputs).color = self.color
+        self.query_one(HsvInputs).hsv = HSV(h, s, v)
         self.query_one(HexInput).value = hex_value
 
     def _on_rgb_inputs_changed(self, event: RgbInputs.Changed) -> None:
