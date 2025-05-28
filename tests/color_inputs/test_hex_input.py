@@ -83,3 +83,17 @@ async def test_submitted_input_is_reset_if_invalid_hex() -> None:
         await pilot.pause()
 
         assert input_widget.value == expected_value
+
+
+async def test_submitted_input_strips_hash_prefix() -> None:
+    app = HexInputApp()
+    async with app.run_test() as pilot:
+        hex_input = pilot.app.query_one(HexInput)
+        input_widget = hex_input.query_one(Input)
+
+        input_widget.value = "#ffff00"
+        await input_widget.action_submit()
+        await pilot.pause()
+
+        assert input_widget.value == "ffff00"
+        assert hex_input.value == "#FFFF00"

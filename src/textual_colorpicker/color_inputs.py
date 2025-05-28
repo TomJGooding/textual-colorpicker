@@ -326,7 +326,7 @@ class HexInput(Widget):
         disabled: bool = False,
     ) -> None:
         super().__init__(name=name, id=id, classes=classes, disabled=disabled)
-        self.value = value
+        self.value = value.upper()
 
     def compose(self) -> ComposeResult:
         hex_value = self._format_hex_value(self.value)
@@ -339,7 +339,7 @@ class HexInput(Widget):
 
     def validate_value(self, value: str) -> str:
         if re.fullmatch(self._HEX_COLOR_PATTERN, value):
-            return value
+            return value.upper()
         raise ValueError(f"Invalid hex color: {value}")
 
     def watch_value(self) -> None:
@@ -361,16 +361,25 @@ class HexInput(Widget):
         validation_result = event.validation_result
         assert validation_result is not None
         if not validation_result.is_valid:
-            # TODO: If the value is a valid hex but starts with the "#" prefix,
-            # simply strip the "#" from the input.
-            hex_value = self._format_hex_value(self.value)
-            event.input.value = hex_value
-            # Force a re-validation of the input selection.
-            # Workaround for https://github.com/Textualize/textual/issues/5811
-            event.input.selection = event.input.selection
-            return
+            # If the value is not a valid hex color, reset the input to the
+            # current hex value.
+            if not re.fullmatch(self._HEX_COLOR_PATTERN, event.value):
+                hex_value = self._format_hex_value(self.value)
+                event.input.value = hex_value
+                # Force a re-validation of the input selection.
+                # Workaround for https://github.com/Textualize/textual/issues/5811
+                event.input.selection = event.input.selection
+                return
 
-        hex_color = f"#{event.value.upper()}"
+        # If the value is a valid hex color but starts with the "#" prefix,
+        # simply strip the "#" from the input.
+        hex_value = self._format_hex_value(event.value)
+        event.input.value = hex_value
+        # Force a re-validation of the input selection.
+        # Workaround for https://github.com/Textualize/textual/issues/5811
+        event.input.selection = event.input.selection
+
+        hex_color = f"#{hex_value.upper()}"
         self.value = hex_color
 
 
