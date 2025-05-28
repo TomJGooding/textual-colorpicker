@@ -46,6 +46,18 @@ class RgbInputs(Widget):
         def control(self) -> RgbInputs:
             return self.rgb_inputs
 
+    def __init__(
+        self,
+        color: Color = Color(255, 0, 0),
+        *,
+        name: str | None = None,
+        id: str | None = None,
+        classes: str | None = None,
+        disabled: bool = False,
+    ) -> None:
+        super().__init__(name=name, id=id, classes=classes, disabled=disabled)
+        self.color = color
+
     def compose(self) -> ComposeResult:
         r, g, b = self.color.rgb
         with HorizontalGroup():
@@ -79,6 +91,8 @@ class RgbInputs(Widget):
         self.post_message(self.Changed(self, self.color))
 
     def _update_all_from_color(self, color: Color) -> None:
+        if not self.is_mounted:
+            return
         red_input = self.query_one("#--red-input", Input)
         green_input = self.query_one("#--green-input", Input)
         blue_input = self.query_one("#--blue-input", Input)
@@ -156,6 +170,18 @@ class HsvInputs(Widget):
         def control(self) -> HsvInputs:
             return self.hsv_inputs
 
+    def __init__(
+        self,
+        hsv: HSV = HSV(0.0, 1.0, 1.0),
+        *,
+        name: str | None = None,
+        id: str | None = None,
+        classes: str | None = None,
+        disabled: bool = False,
+    ) -> None:
+        super().__init__(name=name, id=id, classes=classes, disabled=disabled)
+        self.hsv = hsv
+
     def compose(self) -> ComposeResult:
         h, s, v = self._hsv_scaled_values(self.hsv)
         with HorizontalGroup():
@@ -203,6 +229,8 @@ class HsvInputs(Widget):
         return h, s, v
 
     def _update_all_from_hsv(self, hsv: HSV) -> None:
+        if not self.is_mounted:
+            return
         hue_input = self.query_one("#--hue-input", Input)
         saturation_input = self.query_one("#--saturation-input", Input)
         value_input = self.query_one("#--value-input", Input)
@@ -286,6 +314,18 @@ class HexInput(Widget):
         def control(self) -> HexInput:
             return self.hex_input
 
+    def __init__(
+        self,
+        value: str = "#FF0000",
+        *,
+        name: str | None = None,
+        id: str | None = None,
+        classes: str | None = None,
+        disabled: bool = False,
+    ) -> None:
+        super().__init__(name=name, id=id, classes=classes, disabled=disabled)
+        self.value = value
+
     def compose(self) -> ComposeResult:
         hex_value = self._format_hex_value(self.value)
         with HorizontalGroup():
@@ -355,20 +395,39 @@ class ColorInputs(Widget):
         def control(self) -> ColorInputs:
             return self.color_inputs
 
-    def compose(self) -> ComposeResult:
-        with HorizontalGroup():
-            yield RgbInputs()
-            yield HsvInputs()
-        yield HexInput()
+    def __init__(
+        self,
+        color: Color = Color(255, 0, 0),
+        *,
+        name: str | None = None,
+        id: str | None = None,
+        classes: str | None = None,
+        disabled: bool = False,
+    ) -> None:
+        super().__init__(name=name, id=id, classes=classes, disabled=disabled)
+        self.color = color
 
-    def watch_color(self) -> None:
+    def compose(self) -> ComposeResult:
         h, s, v = _hsv_from_color(self.color)
         hex = self.color.hex
-        self.query_one(RgbInputs).color = self.color
-        self.query_one(HsvInputs).hsv = HSV(h, s, v)
-        self.query_one(HexInput).value = hex
+        with HorizontalGroup():
+            yield RgbInputs(self.color)
+            yield HsvInputs(HSV(h, s, v))
+        yield HexInput(hex)
+
+    def watch_color(self) -> None:
+        self._update_all_from_color(self.color)
 
         self.post_message(self.Changed(self, self.color))
+
+    def _update_all_from_color(self, color: Color) -> None:
+        if not self.is_mounted:
+            return
+        h, s, v = _hsv_from_color(color)
+        hex = color.hex
+        self.query_one(RgbInputs).color = color
+        self.query_one(HsvInputs).hsv = HSV(h, s, v)
+        self.query_one(HexInput).value = hex
 
     def _on_rgb_inputs_changed(self, event: RgbInputs.Changed) -> None:
         event.stop()
