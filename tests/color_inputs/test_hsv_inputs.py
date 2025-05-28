@@ -29,9 +29,9 @@ async def test_inputs_show_scaled_hsv_values() -> None:
     app = HSVInputsApp()
     async with app.run_test() as pilot:
         hsv_inputs = pilot.app.query_one(HsvInputs)
-        hue_input = hsv_inputs.query_one("#--hue-input", Input)
-        saturation_input = hsv_inputs.query_one("#--saturation-input", Input)
-        value_input = hsv_inputs.query_one("#--value-input", Input)
+        hue_input = hsv_inputs.query_one(".--hue-input", Input)
+        saturation_input = hsv_inputs.query_one(".--saturation-input", Input)
+        value_input = hsv_inputs.query_one(".--value-input", Input)
 
         assert hue_input.value == str(0)
         assert saturation_input.value == str(100)
@@ -43,7 +43,7 @@ async def test_updating_inputs_changes_hsv() -> None:
     async with app.run_test() as pilot:
         hsv_inputs = pilot.app.query_one(HsvInputs)
 
-        hue_input = hsv_inputs.query_one("#--hue-input", Input)
+        hue_input = hsv_inputs.query_one(".--hue-input", Input)
         hue_input.focus()
         hue_input.value = str(36)
         # Test hsv is updated after input submitted
@@ -51,7 +51,7 @@ async def test_updating_inputs_changes_hsv() -> None:
         await pilot.pause()
         assert hsv_inputs.hsv == HSV(0.1, 1.0, 1.0)
 
-        saturation_input = hsv_inputs.query_one("#--saturation-input", Input)
+        saturation_input = hsv_inputs.query_one(".--saturation-input", Input)
         saturation_input.focus()
         saturation_input.value = str(10)
         # Test hsv is updated after input blurred
@@ -59,7 +59,7 @@ async def test_updating_inputs_changes_hsv() -> None:
         await pilot.pause()
         assert hsv_inputs.hsv == HSV(0.1, 0.1, 1.0)
 
-        value_input = hsv_inputs.query_one("#--value-input", Input)
+        value_input = hsv_inputs.query_one(".--value-input", Input)
         value_input.value = str(10)
         await value_input.action_submit()
         await pilot.pause()
@@ -78,7 +78,7 @@ async def test_changed_hsv_posts_message() -> None:
         expected_messages.append("Changed")
         assert app.messages == expected_messages
 
-        hue_input = hsv_inputs.query_one("#--hue-input", Input)
+        hue_input = hsv_inputs.query_one(".--hue-input", Input)
         hue_input.value = str(360)
         await hue_input.action_submit()
         await pilot.pause()

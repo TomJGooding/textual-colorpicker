@@ -30,7 +30,7 @@ async def test_updating_inputs_changes_color() -> None:
     async with app.run_test() as pilot:
         rgb_inputs = pilot.app.query_one(RgbInputs)
 
-        red_input = rgb_inputs.query_one("#--red-input", Input)
+        red_input = rgb_inputs.query_one(".--red-input", Input)
         red_input.focus()
         red_input.value = str(128)
         # Test color is updated after input submitted
@@ -38,7 +38,7 @@ async def test_updating_inputs_changes_color() -> None:
         await pilot.pause()
         assert rgb_inputs.color == Color(128, 0, 0)
 
-        green_input = rgb_inputs.query_one("#--green-input", Input)
+        green_input = rgb_inputs.query_one(".--green-input", Input)
         green_input.focus()
         green_input.value = str(128)
         # Test hsv is updated after input blurred
@@ -46,7 +46,7 @@ async def test_updating_inputs_changes_color() -> None:
         await pilot.pause()
         assert rgb_inputs.color == Color(128, 128, 0)
 
-        blue_input = rgb_inputs.query_one("#--blue-input", Input)
+        blue_input = rgb_inputs.query_one(".--blue-input", Input)
         blue_input.value = str(128)
         await blue_input.action_submit()
         await pilot.pause()
@@ -65,7 +65,7 @@ async def test_changed_color_posts_message() -> None:
         expected_messages.append("Changed")
         assert app.messages == expected_messages
 
-        red_input = rgb_inputs.query_one("#--red-input", Input)
+        red_input = rgb_inputs.query_one(".--red-input", Input)
         red_input.value = str(255)
         await red_input.action_submit()
         await pilot.pause()

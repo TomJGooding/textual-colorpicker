@@ -65,21 +65,21 @@ class RgbInputs(Widget):
             yield Input(
                 str(r),
                 validators=Integer(0, 255),
-                id="--red-input",
+                classes="--red-input",
             )
         with HorizontalGroup():
             yield Label("G:")
             yield Input(
                 str(g),
                 validators=Integer(0, 255),
-                id="--green-input",
+                classes="--green-input",
             )
         with HorizontalGroup():
             yield Label("B:")
             yield Input(
                 str(b),
                 validators=Integer(0, 255),
-                id="--blue-input",
+                classes="--blue-input",
             )
 
     def validate_color(self, color: Color) -> Color:
@@ -93,9 +93,9 @@ class RgbInputs(Widget):
     def _update_all_from_color(self, color: Color) -> None:
         if not self.is_mounted:
             return
-        red_input = self.query_one("#--red-input", Input)
-        green_input = self.query_one("#--green-input", Input)
-        blue_input = self.query_one("#--blue-input", Input)
+        red_input = self.query_one(".--red-input", Input)
+        green_input = self.query_one(".--green-input", Input)
+        blue_input = self.query_one(".--blue-input", Input)
 
         clamped_color = color.clamped
         r, g, b = clamped_color.rgb
@@ -127,9 +127,9 @@ class RgbInputs(Widget):
                 event.input.value = str(0)
 
         # If the value is a float, round to the nearest integer.
-        r = int(float(self.query_one("#--red-input", Input).value) + 0.5)
-        g = int(float(self.query_one("#--green-input", Input).value) + 0.5)
-        b = int(float(self.query_one("#--blue-input", Input).value) + 0.5)
+        r = int(float(self.query_one(".--red-input", Input).value) + 0.5)
+        g = int(float(self.query_one(".--green-input", Input).value) + 0.5)
+        b = int(float(self.query_one(".--blue-input", Input).value) + 0.5)
 
         clamped_color = Color(r, g, b).clamped
         # If the value is not in range, set the input to the clamped value.
@@ -189,21 +189,21 @@ class HsvInputs(Widget):
             yield Input(
                 str(h),
                 validators=Integer(0, 360),
-                id="--hue-input",
+                classes="--hue-input",
             )
         with HorizontalGroup():
             yield Label("S:")
             yield Input(
                 str(s),
                 validators=Integer(0, 100),
-                id="--saturation-input",
+                classes="--saturation-input",
             )
         with HorizontalGroup():
             yield Label("V:")
             yield Input(
                 str(v),
                 validators=Integer(0, 100),
-                id="--value-input",
+                classes="--value-input",
             )
 
     def validate_hsv(self, hsv: HSV) -> HSV:
@@ -231,9 +231,9 @@ class HsvInputs(Widget):
     def _update_all_from_hsv(self, hsv: HSV) -> None:
         if not self.is_mounted:
             return
-        hue_input = self.query_one("#--hue-input", Input)
-        saturation_input = self.query_one("#--saturation-input", Input)
-        value_input = self.query_one("#--value-input", Input)
+        hue_input = self.query_one(".--hue-input", Input)
+        saturation_input = self.query_one(".--saturation-input", Input)
+        value_input = self.query_one(".--value-input", Input)
 
         h, s, v = self._hsv_scaled_values(hsv)
 
@@ -264,9 +264,9 @@ class HsvInputs(Widget):
                 event.input.value = str(0)
 
         # If the value is a float, round to the nearest integer.
-        h = int(float(self.query_one("#--hue-input", Input).value) + 0.5)
-        s = int(float(self.query_one("#--saturation-input", Input).value) + 0.5)
-        v = int(float(self.query_one("#--value-input", Input).value) + 0.5)
+        h = int(float(self.query_one(".--hue-input", Input).value) + 0.5)
+        s = int(float(self.query_one(".--saturation-input", Input).value) + 0.5)
+        v = int(float(self.query_one(".--value-input", Input).value) + 0.5)
 
         clamped_hsv = HSV(
             clamp(h / 360, 0.0, 1.0),
