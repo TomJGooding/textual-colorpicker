@@ -71,3 +71,17 @@ async def test_changed_color_posts_message() -> None:
         await pilot.pause()
         expected_messages.append("Changed")
         assert app.messages == expected_messages
+
+
+async def test_submitted_value_set_to_zero_if_not_a_number() -> None:
+    app = RGBInputsApp()
+    async with app.run_test() as pilot:
+        rgb_inputs = pilot.app.query_one(RgbInputs)
+        red_input = rgb_inputs.query_one(".--red-input", Input)
+
+        red_input.value = "NOT A NUMBER"
+        await red_input.action_submit()
+        await pilot.pause()
+
+        assert red_input.value == str(0)
+        assert rgb_inputs.color == Color(0, 0, 0)
