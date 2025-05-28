@@ -38,6 +38,22 @@ async def test_inputs_show_scaled_hsv_values() -> None:
         assert value_input.value == str(100)
 
 
+async def test_changing_hsv_updates_all_inputs() -> None:
+    app = HSVInputsApp()
+    async with app.run_test() as pilot:
+        hsv_inputs = pilot.app.query_one(HsvInputs)
+        hue_input = hsv_inputs.query_one(".--hue-input", Input)
+        saturation_input = hsv_inputs.query_one(".--saturation-input", Input)
+        value_input = hsv_inputs.query_one(".--value-input", Input)
+
+        hsv_inputs.hsv = HSV(0.1, 0.1, 0.1)
+        await pilot.pause()
+
+        assert hue_input.value == str(36)
+        assert saturation_input.value == str(10)
+        assert value_input.value == str(10)
+
+
 async def test_updating_inputs_changes_hsv() -> None:
     app = HSVInputsApp()
     async with app.run_test() as pilot:

@@ -32,6 +32,17 @@ async def test_input_shows_lowercase_hex_without_prefix() -> None:
         assert input_widget.value == "ff0000"
 
 
+async def test_changing_hex_value_updates_input() -> None:
+    app = HexInputApp()
+    async with app.run_test() as pilot:
+        hex_input = pilot.app.query_one(HexInput)
+        input_widget = hex_input.query_one(Input)
+
+        hex_input.value = "#00FFFF"
+
+        assert input_widget.value == "00ffff"
+
+
 async def test_updating_input_changes_hex_value() -> None:
     app = HexInputApp()
     async with app.run_test() as pilot:

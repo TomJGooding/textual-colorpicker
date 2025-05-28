@@ -25,6 +25,22 @@ def test_color_value_is_clamped() -> None:
     assert rgb_inputs.color == Color(0, 0, 0)
 
 
+async def test_changing_color_updates_all_inputs() -> None:
+    app = RGBInputsApp()
+    async with app.run_test() as pilot:
+        rgb_inputs = pilot.app.query_one(RgbInputs)
+        red_input = rgb_inputs.query_one(".--red-input", Input)
+        green_input = rgb_inputs.query_one(".--green-input", Input)
+        blue_input = rgb_inputs.query_one(".--blue-input", Input)
+
+        rgb_inputs.color = Color(0, 255, 255)
+        await pilot.pause()
+
+        assert red_input.value == str(0)
+        assert green_input.value == str(255)
+        assert blue_input.value == str(255)
+
+
 async def test_updating_inputs_changes_color() -> None:
     app = RGBInputsApp()
     async with app.run_test() as pilot:
