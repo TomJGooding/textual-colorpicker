@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+
 from textual import on
 from textual.app import ComposeResult
 from textual.color import HSV, Color
@@ -300,7 +302,7 @@ class HexInput(Widget):
     """
 
     # TODO: Allow shorthand hex values
-    _HEX_VALUE_PATTERN = r"[0-9a-fA-F]{6}"
+    _HEX_COLOR_PATTERN = r"#[0-9a-fA-F]{6}"
 
     value: var[str] = var("#FF0000", init=False)
 
@@ -332,12 +334,18 @@ class HexInput(Widget):
             yield Label("#")
             yield Input(
                 hex_value,
-                validators=Regex(self._HEX_VALUE_PATTERN),
+                validators=Regex(self._HEX_COLOR_PATTERN[1:]),
             )
 
+    def validate_value(self, value: str) -> str:
+        if re.fullmatch(self._HEX_COLOR_PATTERN, value):
+            return value
+        raise ValueError(f"Invalid hex color: {value}")
+
     def watch_value(self) -> None:
-        hex_value = self._format_hex_value(self.value)
-        self.query_one(Input).value = hex_value
+        if self.is_mounted:
+            hex_value = self._format_hex_value(self.value)
+            self.query_one(Input).value = hex_value
 
         self.post_message(self.Changed(self, self.value))
 
@@ -362,8 +370,8 @@ class HexInput(Widget):
             event.input.selection = event.input.selection
             return
 
-        hex = f"#{event.value.upper()}"
-        self.value = hex
+        hex_color = f"#{event.value.upper()}"
+        self.value = hex_color
 
 
 class ColorInputs(Widget):
