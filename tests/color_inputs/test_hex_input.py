@@ -69,3 +69,17 @@ async def test_changed_hex_value_posts_message() -> None:
         await pilot.pause()
         expected_messages.append("Changed")
         assert app.messages == expected_messages
+
+
+async def test_submitted_input_is_reset_if_invalid_hex() -> None:
+    app = HexInputApp()
+    async with app.run_test() as pilot:
+        hex_input = pilot.app.query_one(HexInput)
+        input_widget = hex_input.query_one(Input)
+        expected_value = input_widget.value
+
+        input_widget.value = "INVALID"
+        await input_widget.action_submit()
+        await pilot.pause()
+
+        assert input_widget.value == expected_value
