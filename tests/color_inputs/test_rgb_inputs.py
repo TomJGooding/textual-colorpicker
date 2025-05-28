@@ -99,3 +99,22 @@ async def test_submitted_value_rounded_if_float() -> None:
 
         assert red_input.value == str(128)
         assert rgb_inputs.color == Color(128, 0, 0)
+
+
+async def test_submitted_value_clamped_if_not_in_range() -> None:
+    app = RGBInputsApp()
+    async with app.run_test() as pilot:
+        rgb_inputs = pilot.app.query_one(RgbInputs)
+        red_input = rgb_inputs.query_one(".--red-input", Input)
+
+        red_input.value = str(-999)
+        await red_input.action_submit()
+        await pilot.pause()
+        assert red_input.value == str(0)
+        assert rgb_inputs.color == Color(0, 0, 0)
+
+        red_input.value = str(999)
+        await red_input.action_submit()
+        await pilot.pause()
+        assert red_input.value == str(255)
+        assert rgb_inputs.color == Color(255, 0, 0)
