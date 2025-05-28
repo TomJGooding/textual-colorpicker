@@ -98,3 +98,17 @@ async def test_submitted_value_set_to_zero_if_not_a_number() -> None:
 
         assert saturation_input.value == str(0)
         assert hsv_inputs.hsv == HSV(0.0, 0.0, 1.0)
+
+
+async def test_submitted_value_rounded_if_float() -> None:
+    app = HSVInputsApp()
+    async with app.run_test() as pilot:
+        hsv_inputs = pilot.app.query_one(HsvInputs)
+        value_input = hsv_inputs.query_one(".--value-input", Input)
+
+        value_input.value = str(50.2)
+        await value_input.action_submit()
+        await pilot.pause()
+
+        assert value_input.value == str(50)
+        assert hsv_inputs.hsv == HSV(0.0, 1.0, 0.5)
