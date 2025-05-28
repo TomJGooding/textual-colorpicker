@@ -432,6 +432,9 @@ class ColorInputs(Widget):
             yield HsvInputs(HSV(h, s, v))
         yield HexInput(hex)
 
+    def validate_color(self, color: Color) -> Color:
+        return color.clamped
+
     def watch_color(self) -> None:
         self._update_all_from_color(self.color)
 
