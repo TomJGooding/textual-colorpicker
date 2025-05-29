@@ -76,7 +76,7 @@ class HuePicker(Widget):
         get_color = self._GRADIENT.get_rich_color
         from_color = Style.from_color
 
-        arrow_x = int(self.value * (width - 1))
+        arrow_x = int(self.value * (width - 1) + 0.5)
         arrow_icon, arrow_color = ("▼", BLACK) if y == 0 else ("▲", WHITE)
 
         segments = [
