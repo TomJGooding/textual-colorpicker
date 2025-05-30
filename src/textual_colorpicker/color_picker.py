@@ -80,7 +80,7 @@ class ColorPicker(Widget):
             return
         h, s, v = _hsv_from_color(color)
         self.query_one(SaturationValuePicker).hsv = HSV(h, s, v)
-        self.query_one(HuePicker).value = h
+        self.query_one(HuePicker).hue = h
 
         self.query_one(ColorPreview).color = color
         self.query_one(ColorInputs).color = color

@@ -32,7 +32,7 @@ class HuePicker(Widget):
 
     _GRADIENT = Gradient.from_colors(*_GRADIENT_COLORS)
 
-    value: reactive[float] = reactive(0.0, init=False)
+    hue: reactive[float] = reactive(0.0, init=False)
     """Hue value in the range 0 to 1."""
 
     class Changed(Message):
@@ -41,9 +41,9 @@ class HuePicker(Widget):
         This message can be handled using an `on_hue_picker_changed` method.
         """
 
-        def __init__(self, hue_picker: HuePicker, value: float) -> None:
+        def __init__(self, hue_picker: HuePicker, hue: float) -> None:
             super().__init__()
-            self.value: float = value
+            self.hue: float = hue
             self.hue_picker: HuePicker = hue_picker
 
         @property
@@ -52,7 +52,7 @@ class HuePicker(Widget):
 
     def __init__(
         self,
-        value: float = 0.0,
+        hue: float = 0.0,
         *,
         name: str | None = None,
         id: str | None = None,
@@ -62,14 +62,14 @@ class HuePicker(Widget):
         """Create a hue picker widget.
 
         Args:
-            value: The initial hue value in the range 0-1.
+            hue: The initial hue value in the range 0-1.
             name: The name of the widget.
             id: The ID of the widget in the DOM.
             classes: The CSS classes of the widget.
             disabled: Whether the widget is disabled or not.
         """
         super().__init__(name=name, id=id, classes=classes, disabled=disabled)
-        self.value = value
+        self.hue = hue
         self._grabbed = False
 
     def render_line(self, y: int) -> Strip:
@@ -78,7 +78,7 @@ class HuePicker(Widget):
         get_color = self._GRADIENT.get_rich_color
         from_color = Style.from_color
 
-        arrow_x = int(self.value * (width - 1) + 0.5)
+        arrow_x = int(self.hue * (width - 1) + 0.5)
         arrow_icon, arrow_color = ("▼", BLACK) if y == 0 else ("▲", WHITE)
 
         segments = [
@@ -96,18 +96,18 @@ class HuePicker(Widget):
 
         return Strip(segments)
 
-    def validate_value(self, value: float) -> float:
-        return clamp(value, 0.0, 1.0)
+    def validate_hue(self, hue: float) -> float:
+        return clamp(hue, 0.0, 1.0)
 
-    def watch_value(self) -> None:
-        self.post_message(self.Changed(self, self.value))
+    def watch_hue(self) -> None:
+        self.post_message(self.Changed(self, self.hue))
 
     async def _on_mouse_down(self, event: events.MouseDown) -> None:
         mouse_offset = event.get_content_offset(self)
         if mouse_offset is None:
             return
         mouse_x_norm = mouse_offset.x / (self.content_size.width - 1)
-        self.value = mouse_x_norm
+        self.hue = mouse_x_norm
 
         self._grabbed = True
         self.capture_mouse(True)
@@ -116,7 +116,7 @@ class HuePicker(Widget):
         mouse_offset = event.get_content_offset(self)
         if self._grabbed and mouse_offset is not None:
             mouse_x_norm = mouse_offset.x / (self.content_size.width - 1)
-            self.value = mouse_x_norm
+            self.hue = mouse_x_norm
 
     async def _on_mouse_up(self, event: events.MouseUp) -> None:
         if self._grabbed:
