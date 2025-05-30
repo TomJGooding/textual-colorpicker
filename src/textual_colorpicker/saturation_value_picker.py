@@ -14,6 +14,7 @@ from textual_colorpicker._color_hsv import _color_from_hsv
 
 
 class SaturationValuePicker(Widget):
+    ALLOW_SELECT = False
 
     hsv = reactive(HSV(0.0, 1.0, 1.0), init=False)
     """The currently selected HSV (Hue, Saturation, Value) values"""
