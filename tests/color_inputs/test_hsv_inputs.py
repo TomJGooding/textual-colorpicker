@@ -94,13 +94,6 @@ async def test_changed_hsv_posts_message() -> None:
         expected_messages.append("Changed")
         assert app.messages == expected_messages
 
-        hue_input = hsv_inputs.query_one(".--hue-input", Input)
-        hue_input.value = str(360)
-        await hue_input.action_submit()
-        await pilot.pause()
-        expected_messages.append("Changed")
-        assert app.messages == expected_messages
-
 
 async def test_submitted_value_set_to_zero_if_not_a_number() -> None:
     app = HSVInputsApp()

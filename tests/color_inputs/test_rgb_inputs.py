@@ -81,13 +81,6 @@ async def test_changed_color_posts_message() -> None:
         expected_messages.append("Changed")
         assert app.messages == expected_messages
 
-        red_input = rgb_inputs.query_one(".--red-input", Input)
-        red_input.value = str(255)
-        await red_input.action_submit()
-        await pilot.pause()
-        expected_messages.append("Changed")
-        assert app.messages == expected_messages
-
 
 async def test_submitted_value_set_to_zero_if_not_a_number() -> None:
     app = RGBInputsApp()

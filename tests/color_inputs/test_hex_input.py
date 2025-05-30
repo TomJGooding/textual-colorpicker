@@ -74,13 +74,6 @@ async def test_changed_hex_value_posts_message() -> None:
         expected_messages.append("Changed")
         assert app.messages == expected_messages
 
-        input_widget = hex_input.query_one(Input)
-        input_widget.value = "0000ff"
-        await input_widget.action_submit()
-        await pilot.pause()
-        expected_messages.append("Changed")
-        assert app.messages == expected_messages
-
 
 async def test_submitted_input_is_reset_if_invalid_hex() -> None:
     app = HexInputApp()

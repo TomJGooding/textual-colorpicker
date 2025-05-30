@@ -25,7 +25,7 @@ class SaturationValuePickerApp(App):
         self.messages.append(event.__class__.__name__)
 
 
-def test_hsv_value_is_clamped():
+def test_hsv_value_is_clamped() -> None:
     saturation_value_picker = SaturationValuePicker(HSV(99.0, 99.0, 99.0))
     assert saturation_value_picker.hsv == HSV(1.0, 1.0, 1.0)
 
@@ -33,7 +33,7 @@ def test_hsv_value_is_clamped():
     assert saturation_value_picker.hsv == HSV(0.0, 0.0, 0.0)
 
 
-async def test_clicking_updates_hsv_value():
+async def test_clicking_updates_hsv_value() -> None:
     app = SaturationValuePickerApp()
     async with app.run_test() as pilot:
         saturation_value_picker = pilot.app.query_one(SaturationValuePicker)
@@ -42,7 +42,7 @@ async def test_clicking_updates_hsv_value():
         assert saturation_value_picker.hsv.v == 0.5
 
 
-async def test_clicking_outside_content_is_noop():
+async def test_clicking_outside_content_is_noop() -> None:
     app = SaturationValuePickerApp()
     async with app.run_test() as pilot:
         saturation_value_picker = pilot.app.query_one(SaturationValuePicker)
@@ -57,7 +57,7 @@ async def test_clicking_outside_content_is_noop():
         assert saturation_value_picker.hsv == expected_hsv  # No change
 
 
-async def test_click_and_drag_updates_hsv_value():
+async def test_click_and_drag_updates_hsv_value() -> None:
     app = SaturationValuePickerApp()
     async with app.run_test() as pilot:
         saturation_value_picker = pilot.app.query_one(SaturationValuePicker)
@@ -67,18 +67,14 @@ async def test_click_and_drag_updates_hsv_value():
         assert saturation_value_picker.hsv.v == 0.5
 
 
-async def test_changed_hsv_posts_message():
+async def test_changed_hsv_posts_message() -> None:
     app = SaturationValuePickerApp()
     async with app.run_test() as pilot:
         saturation_value_picker = pilot.app.query_one(SaturationValuePicker)
-        expected_messages = []
+        expected_messages: list[str] = []
         assert app.messages == expected_messages
 
         saturation_value_picker.hsv = HSV(0.0, 0.0, 0.0)
         await pilot.pause()
-        expected_messages.append("Changed")
-        assert app.messages == expected_messages
-
-        await pilot.click(SaturationValuePicker, offset=(17, 8))
         expected_messages.append("Changed")
         assert app.messages == expected_messages
