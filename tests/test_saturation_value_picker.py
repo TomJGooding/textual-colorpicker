@@ -57,14 +57,16 @@ async def test_clicking_outside_content_is_noop() -> None:
         assert saturation_value_picker.hsv == expected_hsv  # No change
 
 
-async def test_click_and_drag_updates_hsv_value() -> None:
-    app = SaturationValuePickerApp()
-    async with app.run_test() as pilot:
-        saturation_value_picker = pilot.app.query_one(SaturationValuePicker)
-        await pilot.mouse_down(SaturationValuePicker, offset=(7, 4))
-        await pilot.hover(SaturationValuePicker, offset=(17, 8))
-        assert saturation_value_picker.hsv.s == 0.5
-        assert saturation_value_picker.hsv.v == 0.5
+# TODO: Remember to uncomment this test after enabling click and drag
+#
+# async def test_click_and_drag_updates_hsv_value() -> None:
+#     app = SaturationValuePickerApp()
+#     async with app.run_test() as pilot:
+#         saturation_value_picker = pilot.app.query_one(SaturationValuePicker)
+#         await pilot.mouse_down(SaturationValuePicker, offset=(7, 4))
+#         await pilot.hover(SaturationValuePicker, offset=(17, 8))
+#         assert saturation_value_picker.hsv.s == 0.5
+#         assert saturation_value_picker.hsv.v == 0.5
 
 
 async def test_changed_hsv_posts_message() -> None:

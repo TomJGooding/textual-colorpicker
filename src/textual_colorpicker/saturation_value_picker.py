@@ -119,26 +119,30 @@ class SaturationValuePicker(Widget):
         value = 1 - mouse_y_norm
         self.hsv = HSV(hue, saturation, value)
 
-        self._grabbed = True
-        self.capture_mouse(True)
-
-    async def _on_mouse_move(self, event: events.MouseMove) -> None:
-        mouse_offset = event.get_content_offset(self)
-        if self._grabbed and mouse_offset is not None:
-            width = self.content_size.width
-            height = self.content_size.height
-            mouse_y_norm = mouse_offset.y / (height - 1)
-            mouse_x_norm = mouse_offset.x / (width - 1)
-
-            hue = self.hsv.h
-            saturation = mouse_x_norm
-            value = 1 - mouse_y_norm
-            self.hsv = HSV(hue, saturation, value)
-
-    async def _on_mouse_up(self, event: events.MouseUp) -> None:
-        if self._grabbed:
-            self._grabbed = False
-            self.release_mouse()
+    # TODO: Enable click and drag for the saturation/value picker. Unfortunately
+    # this causes the app to lag and eventually freeze entirely when implemented
+    # in the color picker widget.
+    #
+    #     self._grabbed = True
+    #     self.capture_mouse(True)
+    #
+    # async def _on_mouse_move(self, event: events.MouseMove) -> None:
+    #     mouse_offset = event.get_content_offset(self)
+    #     if self._grabbed and mouse_offset is not None:
+    #         width = self.content_size.width
+    #         height = self.content_size.height
+    #         mouse_y_norm = mouse_offset.y / (height - 1)
+    #         mouse_x_norm = mouse_offset.x / (width - 1)
+    #
+    #         hue = self.hsv.h
+    #         saturation = mouse_x_norm
+    #         value = 1 - mouse_y_norm
+    #         self.hsv = HSV(hue, saturation, value)
+    #
+    # async def _on_mouse_up(self, event: events.MouseUp) -> None:
+    #     if self._grabbed:
+    #         self._grabbed = False
+    #         self.release_mouse()
 
 
 if __name__ == "__main__":
