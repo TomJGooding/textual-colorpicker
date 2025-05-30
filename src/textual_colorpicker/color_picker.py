@@ -6,7 +6,7 @@ from textual.containers import VerticalGroup
 from textual.reactive import var
 from textual.widget import Widget
 
-from textual_colorpicker._color_hsv import _hsv_from_color
+from textual_colorpicker._color_hsv import _color_from_hsv, _hsv_from_color
 from textual_colorpicker.color_inputs import ColorInputs
 from textual_colorpicker.color_preview import ColorPreview
 from textual_colorpicker.hue_picker import HuePicker
@@ -29,7 +29,7 @@ class ColorPicker(Widget):
         }
 
         HuePicker {
-            width: 36;
+            width: 37;
             margin-top: 1;
         }
 
@@ -62,9 +62,8 @@ class ColorPicker(Widget):
     def compose(self) -> ComposeResult:
         h, s, v = _hsv_from_color(self.color)
         with VerticalGroup():
-            # TODO: Enable the hue and saturation/value pickers
-            yield SaturationValuePicker(HSV(h, s, v), disabled=True)
-            yield HuePicker(h, disabled=True)
+            yield SaturationValuePicker(HSV(h, s, v))
+            yield HuePicker(h)
         with VerticalGroup():
             yield ColorPreview(self.color)
             yield ColorInputs(self.color)
@@ -78,26 +77,32 @@ class ColorPicker(Widget):
     def _update_all_from_color(self, color: Color) -> None:
         if not self.is_mounted:
             return
-        h, s, v = _hsv_from_color(color)
-        self.query_one(SaturationValuePicker).hsv = HSV(h, s, v)
-        self.query_one(HuePicker).hue = h
-
         self.query_one(ColorPreview).color = color
         self.query_one(ColorInputs).color = color
+
+        h, s, v = _hsv_from_color(color)
+        self.query_one(HuePicker).hue = h
+        self.query_one(SaturationValuePicker).hsv = HSV(h, s, v)
+
+    def _on_color_inputs_changed(self, event: ColorInputs.Changed) -> None:
+        event.stop()
+        self.color = event.color
+
+    def _on_hue_picker_changed(self, event: HuePicker.Changed) -> None:
+        event.stop()
+        h = event.hue
+        _, s, v = _hsv_from_color(self.color)
+        color = _color_from_hsv(h, s, v)
+        self.color = color
 
     def _on_saturation_value_picker_changed(
         self, event: SaturationValuePicker.Changed
     ) -> None:
         event.stop()
-        # TODO: Update color when saturation/value picker changed
-
-    def _on_hue_picker_changed(self, event: HuePicker.Changed) -> None:
-        event.stop()
-        # TODO: Update color when hue picker changed
-
-    def _on_color_inputs_changed(self, event: ColorInputs.Changed) -> None:
-        event.stop()
-        self.color = event.color
+        h, _, _ = _hsv_from_color(self.color)
+        _, s, v = event.hsv
+        color = _color_from_hsv(h, s, v)
+        self.color = color
 
 
 if __name__ == "__main__":
