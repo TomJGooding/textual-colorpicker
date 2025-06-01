@@ -6,7 +6,6 @@ from textual.containers import VerticalGroup
 from textual.reactive import var
 from textual.widget import Widget
 
-from textual_colorpicker._color_hsv import _color_from_hsv, _hsv_from_color
 from textual_colorpicker.color_inputs import ColorInputs
 from textual_colorpicker.color_preview import ColorPreview
 from textual_colorpicker.hue_picker import HuePicker
@@ -60,7 +59,7 @@ class ColorPicker(Widget):
         self.color = color
 
     def compose(self) -> ComposeResult:
-        h, s, v = _hsv_from_color(self.color)
+        h, s, v = self.color.hsv
         with VerticalGroup():
             yield SaturationValuePicker(HSV(h, s, v))
             yield HuePicker(h)
@@ -80,7 +79,7 @@ class ColorPicker(Widget):
         self.query_one(ColorPreview).color = color
         self.query_one(ColorInputs).color = color
 
-        h, s, v = _hsv_from_color(color)
+        h, s, v = color.hsv
         self.query_one(HuePicker).hue = h
         self.query_one(SaturationValuePicker).hsv = HSV(h, s, v)
 
@@ -91,17 +90,17 @@ class ColorPicker(Widget):
     def _on_hue_picker_changed(self, event: HuePicker.Changed) -> None:
         event.stop()
         h = event.hue
-        _, s, v = _hsv_from_color(self.color)
-        color = _color_from_hsv(h, s, v)
+        _, s, v = self.color.hsv
+        color = Color.from_hsv(h, s, v)
         self.color = color
 
     def _on_saturation_value_picker_changed(
         self, event: SaturationValuePicker.Changed
     ) -> None:
         event.stop()
-        h, _, _ = _hsv_from_color(self.color)
+        h, _, _ = self.color.hsv
         _, s, v = event.hsv
-        color = _color_from_hsv(h, s, v)
+        color = Color.from_hsv(h, s, v)
         self.color = color
 
 

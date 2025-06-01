@@ -13,8 +13,6 @@ from textual.validation import Integer, Regex
 from textual.widget import Widget
 from textual.widgets import Input, Label
 
-from textual_colorpicker._color_hsv import _color_from_hsv, _hsv_from_color
-
 
 class RgbInputs(Widget):
     DEFAULT_CSS = """
@@ -425,7 +423,7 @@ class ColorInputs(Widget):
         self.color = color
 
     def compose(self) -> ComposeResult:
-        h, s, v = _hsv_from_color(self.color)
+        h, s, v = self.color.hsv
         hex = self.color.hex
         with HorizontalGroup():
             yield RgbInputs(self.color)
@@ -443,7 +441,7 @@ class ColorInputs(Widget):
     def _update_all_from_color(self, color: Color) -> None:
         if not self.is_mounted:
             return
-        h, s, v = _hsv_from_color(color)
+        h, s, v = color.hsv
         hex = color.hex
         self.query_one(RgbInputs).color = color
         self.query_one(HsvInputs).hsv = HSV(h, s, v)
@@ -455,7 +453,7 @@ class ColorInputs(Widget):
 
     def _on_hsv_inputs_changed(self, event: HsvInputs.Changed) -> None:
         event.stop()
-        color = _color_from_hsv(*event.hsv)
+        color = Color.from_hsv(*event.hsv)
         self.color = color
 
     def _on_hex_input_changed(self, event: HexInput.Changed) -> None:

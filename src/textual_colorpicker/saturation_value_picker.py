@@ -3,14 +3,12 @@ from __future__ import annotations
 from rich.segment import Segment
 from rich.style import Style
 from textual import events
-from textual.color import HSV, WHITE
+from textual.color import HSV, WHITE, Color
 from textual.geometry import clamp
 from textual.message import Message
 from textual.reactive import reactive
 from textual.strip import Strip
 from textual.widget import Widget
-
-from textual_colorpicker._color_hsv import _color_from_hsv
 
 
 class SaturationValuePicker(Widget):
@@ -75,7 +73,7 @@ class SaturationValuePicker(Widget):
             saturation = x / (width - 1)
             style = from_color(
                 WHITE.rich_color,
-                _color_from_hsv(hue, saturation, value).rich_color,
+                Color.from_hsv(hue, saturation, value).rich_color,
             )
 
             if (y, x) == (pointer_y, pointer_x):
