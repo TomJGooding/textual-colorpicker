@@ -104,12 +104,6 @@ class RgbInputs(Widget):
         green_input.value = str(g)
         blue_input.value = str(b)
 
-        # Force a re-validation of the input selections.
-        # Workaround for https://github.com/Textualize/textual/issues/5811
-        red_input.selection = red_input.selection
-        green_input.selection = green_input.selection
-        blue_input.selection = blue_input.selection
-
     @on(Input.Blurred)
     @on(Input.Submitted)
     def _on_input_blurred_or_submitted(
@@ -241,12 +235,6 @@ class HsvInputs(Widget):
         saturation_input.value = str(s)
         value_input.value = str(v)
 
-        # Force a re-validation of the input selections.
-        # Workaround for https://github.com/Textualize/textual/issues/5811
-        hue_input.selection = hue_input.selection
-        saturation_input.selection = saturation_input.selection
-        value_input.selection = value_input.selection
-
     @on(Input.Blurred)
     @on(Input.Submitted)
     def _on_input_blurred_or_submitted(
@@ -364,18 +352,12 @@ class HexInput(Widget):
             if not re.fullmatch(self._HEX_COLOR_PATTERN, event.value):
                 hex_value = self._format_hex_value(self.value)
                 event.input.value = hex_value
-                # Force a re-validation of the input selection.
-                # Workaround for https://github.com/Textualize/textual/issues/5811
-                event.input.selection = event.input.selection
                 return
 
         # If the value is a valid hex color but starts with the "#" prefix,
         # simply strip the "#" from the input.
         hex_value = self._format_hex_value(event.value)
         event.input.value = hex_value
-        # Force a re-validation of the input selection.
-        # Workaround for https://github.com/Textualize/textual/issues/5811
-        event.input.selection = event.input.selection
 
         hex_color = f"#{hex_value.upper()}"
         self.value = hex_color
