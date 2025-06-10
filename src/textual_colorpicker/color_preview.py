@@ -32,25 +32,3 @@ class ColorPreview(Widget):
 
     def render(self) -> RenderResult:
         return Blank(self.color)
-
-
-if __name__ == "__main__":
-    from textual.app import App, ComposeResult
-
-    class ColorPreviewApp(App):
-        CSS = """
-        Screen {
-            align: center middle;
-        }
-
-        ColorPreview {
-            width: 80%;
-            height: 80%;
-        }
-        """
-
-        def compose(self) -> ComposeResult:
-            yield ColorPreview()
-
-    app = ColorPreviewApp()
-    app.run()
