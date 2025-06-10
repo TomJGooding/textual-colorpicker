@@ -35,8 +35,14 @@ class RgbInputs(Widget):
     """
 
     color: var[Color] = var(Color(255, 0, 0), init=False)
+    """The current color value."""
 
     class Changed(Message):
+        """Posted when the color value changes.
+
+        This message can be handled using an `on_rgb_inputs_changed` method.
+        """
+
         def __init__(self, rgb_inputs: RgbInputs, color: Color) -> None:
             super().__init__()
             self.color: Color = color
@@ -55,6 +61,15 @@ class RgbInputs(Widget):
         classes: str | None = None,
         disabled: bool = False,
     ) -> None:
+        """Create an RGB inputs widget that combines fields for Red, Green and Blue values.
+
+        Args:
+            color: The initial color value.
+            name: The name of the widget.
+            id: The ID of the widget in the DOM.
+            classes: The CSS classes of the widget.
+            disabled: Whether the widget is disabled or not.
+        """
         super().__init__(name=name, id=id, classes=classes, disabled=disabled)
         self.color = color
 
@@ -153,8 +168,14 @@ class HsvInputs(Widget):
     """
 
     hsv: var[HSV] = var(HSV(0.0, 1.0, 1.0), init=False)
+    """The current HSV (Hue, Saturation, Value) values in the range 0 to 1."""
 
     class Changed(Message):
+        """Posted when the HSV (Hue, Saturation, Value) value changes.
+
+        This message can be handled using an `on_hsv_inputs_changed` method.
+        """
+
         def __init__(self, hsv_inputs: HsvInputs, hsv: HSV) -> None:
             super().__init__()
             self.hsv: HSV = hsv
@@ -173,6 +194,15 @@ class HsvInputs(Widget):
         classes: str | None = None,
         disabled: bool = False,
     ) -> None:
+        """Create an HSV inputs widget that combines fields for Hue, Saturation and Value values.
+
+        Args:
+            hsv: The initial HSV (Hue, Saturation, Value) values in the range 0 to 1.
+            name: The name of the widget.
+            id: The ID of the widget in the DOM.
+            classes: The CSS classes of the widget.
+            disabled: Whether the widget is disabled or not.
+        """
         super().__init__(name=name, id=id, classes=classes, disabled=disabled)
         self.hsv = hsv
 
@@ -291,8 +321,14 @@ class HexInput(Widget):
     _HEX_COLOR_PATTERN = r"#[0-9a-fA-F]{6}"
 
     value: var[str] = var("#FF0000", init=False)
+    """The current hex color value."""
 
     class Changed(Message):
+        """Posted when the hex color value changes.
+
+        This message can be handled using an `on_hex_input_changed` method.
+        """
+
         def __init__(self, hex_input: HexInput, value: str) -> None:
             super().__init__()
             self.value: str = value
@@ -311,6 +347,15 @@ class HexInput(Widget):
         classes: str | None = None,
         disabled: bool = False,
     ) -> None:
+        """Create a hex color input widget.
+
+        Args:
+            value: The initial hex color value.
+            name: The name of the widget.
+            id: The ID of the widget in the DOM.
+            classes: The CSS classes of the widget.
+            disabled: Whether the widget is disabled or not.
+        """
         super().__init__(name=name, id=id, classes=classes, disabled=disabled)
         self.value = value.upper()
 
@@ -381,8 +426,14 @@ class ColorInputs(Widget):
     """
 
     color: var[Color] = var(Color(255, 0, 0), init=False)
+    """The current color value."""
 
     class Changed(Message):
+        """Posted when the color value changes.
+
+        This message can be handled using an `on_color_inputs_changed` method.
+        """
+
         def __init__(self, color_inputs: ColorInputs, color: Color) -> None:
             super().__init__()
             self.color: Color = color
@@ -401,6 +452,15 @@ class ColorInputs(Widget):
         classes: str | None = None,
         disabled: bool = False,
     ) -> None:
+        """Create a color inputs widget that combines fields for RGB, HSV and Hex values.
+
+        Args:
+            color: The initial color value.
+            name: The name of the widget.
+            id: The ID of the widget in the DOM.
+            classes: The CSS classes of the widget.
+            disabled: Whether the widget is disabled or not.
+        """
         super().__init__(name=name, id=id, classes=classes, disabled=disabled)
         self.color = color
 
