@@ -45,6 +45,7 @@ class ColorPicker(Widget):
     """
 
     color: var[Color] = var(Color(255, 0, 0), init=False)
+    """The current color value."""
 
     def __init__(
         self,
@@ -55,6 +56,15 @@ class ColorPicker(Widget):
         classes: str | None = None,
         disabled: bool = False,
     ) -> None:
+        """Create a color picker widget.
+
+        Args:
+            color: The initial color value.
+            name: The name of the widget.
+            id: The ID of the widget in the DOM.
+            classes: The CSS classes of the widget.
+            disabled: Whether the widget is disabled or not.
+        """
         super().__init__(name=name, id=id, classes=classes, disabled=disabled)
         self.color = color
 
