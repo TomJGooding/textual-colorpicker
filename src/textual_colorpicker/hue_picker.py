@@ -33,7 +33,7 @@ class HuePicker(Widget):
     _GRADIENT = Gradient.from_colors(*_GRADIENT_COLORS)
 
     hue: reactive[float] = reactive(0.0, init=False)
-    """Hue value in the range 0 to 1."""
+    """The currently selected hue value in the range 0 to 1."""
 
     class Changed(Message):
         """Posted when the hue value changes.
@@ -62,7 +62,7 @@ class HuePicker(Widget):
         """Create a hue picker widget.
 
         Args:
-            hue: The initial hue value in the range 0-1.
+            hue: The initial hue value in the range 0 to 1.
             name: The name of the widget.
             id: The ID of the widget in the DOM.
             classes: The CSS classes of the widget.

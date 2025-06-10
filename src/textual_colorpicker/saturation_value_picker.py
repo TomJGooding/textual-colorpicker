@@ -15,7 +15,7 @@ class SaturationValuePicker(Widget):
     ALLOW_SELECT = False
 
     hsv = reactive(HSV(0.0, 1.0, 1.0), init=False)
-    """The currently selected HSV (Hue, Saturation, Value) values"""
+    """The currently selected HSV (Hue, Saturation, Value) values in the range 0 to 1."""
 
     class Changed(Message):
         """Posted when the HSV (Hue, Saturation, Value) value changes.
@@ -46,7 +46,7 @@ class SaturationValuePicker(Widget):
         """Create a two-dimensional saturation/value picker widget.
 
         Args:
-            hsv: The initial HSV (Hue, Saturation, Value) values.
+            hsv: The initial HSV (Hue, Saturation, Value) values in the range 0 to 1.
             name: The name of the widget.
             id: The ID of the widget in the DOM.
             classes: The CSS classes of the widget.
