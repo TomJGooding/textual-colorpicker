@@ -129,14 +129,14 @@ async def test_submitted_value_clamped_if_not_in_range() -> None:
         hsv_inputs = pilot.app.query_one(HsvInputs)
         saturation_input = hsv_inputs.query_one(".--saturation-input", Input)
 
-        saturation_input.value = str(-999)
-        await saturation_input.action_submit()
-        await pilot.pause()
-        assert saturation_input.value == str(0)
-        assert hsv_inputs.hsv == HSV(0.0, 0.0, 1.0)
-
         saturation_input.value = str(999)
         await saturation_input.action_submit()
         await pilot.pause()
         assert saturation_input.value == str(100)
         assert hsv_inputs.hsv == HSV(0.0, 1.0, 1.0)
+
+        saturation_input.value = str(-999)
+        await saturation_input.action_submit()
+        await pilot.pause()
+        assert saturation_input.value == str(0)
+        assert hsv_inputs.hsv == HSV(0.0, 0.0, 1.0)
