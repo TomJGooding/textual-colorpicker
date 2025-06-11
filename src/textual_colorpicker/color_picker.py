@@ -13,6 +13,8 @@ from textual_colorpicker.saturation_value_picker import SaturationValuePicker
 
 
 class ColorPicker(Widget):
+    """A color picker widget."""
+
     DEFAULT_CSS = """
     ColorPicker {
         width: auto;

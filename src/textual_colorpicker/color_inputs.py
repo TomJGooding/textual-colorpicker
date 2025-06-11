@@ -15,6 +15,8 @@ from textual.widgets import Input, Label
 
 
 class RgbInputs(Widget):
+    """An RGB inputs widget that combines fields for Red, Green and Blue values."""
+
     DEFAULT_CSS = """
     RgbInputs {
         width: auto;
@@ -61,7 +63,7 @@ class RgbInputs(Widget):
         classes: str | None = None,
         disabled: bool = False,
     ) -> None:
-        """Create an RGB inputs widget that combines fields for Red, Green and Blue values.
+        """Create an RGB inputs widget.
 
         Args:
             color: The initial color value.
@@ -148,6 +150,8 @@ class RgbInputs(Widget):
 
 
 class HsvInputs(Widget):
+    """An HSV inputs widget that combines fields for Hue, Saturation and Value values."""
+
     DEFAULT_CSS = """
     HsvInputs {
         width: auto;
@@ -194,7 +198,7 @@ class HsvInputs(Widget):
         classes: str | None = None,
         disabled: bool = False,
     ) -> None:
-        """Create an HSV inputs widget that combines fields for Hue, Saturation and Value values.
+        """Create an HSV inputs widget.
 
         Args:
             hsv: The initial HSV (Hue, Saturation, Value) values in the range 0 to 1.
@@ -207,7 +211,7 @@ class HsvInputs(Widget):
         self.hsv = hsv
 
     def compose(self) -> ComposeResult:
-        h, s, v = self._hsv_scaled_values(self.hsv)
+        h, s, v = self._hsv_scaled_integers(self.hsv)
         with HorizontalGroup():
             yield Label("H:")
             yield Input(
@@ -245,7 +249,7 @@ class HsvInputs(Widget):
 
         self.post_message(self.Changed(self, self.hsv))
 
-    def _hsv_scaled_values(self, hsv: HSV) -> tuple[int, int, int]:
+    def _hsv_scaled_integers(self, hsv: HSV) -> tuple[int, int, int]:
         h = int(hsv.h * 360 + 0.5)
         s = int(hsv.s * 100 + 0.5)
         v = int(hsv.v * 100 + 0.5)
@@ -259,7 +263,7 @@ class HsvInputs(Widget):
         saturation_input = self.query_one(".--saturation-input", Input)
         value_input = self.query_one(".--value-input", Input)
 
-        h, s, v = self._hsv_scaled_values(hsv)
+        h, s, v = self._hsv_scaled_integers(hsv)
 
         hue_input.value = str(h)
         saturation_input.value = str(s)
@@ -298,6 +302,8 @@ class HsvInputs(Widget):
 
 
 class HexInput(Widget):
+    """A hex color input widget."""
+
     DEFAULT_CSS = """
     HexInput {
         width: auto;
@@ -409,6 +415,8 @@ class HexInput(Widget):
 
 
 class ColorInputs(Widget):
+    """A color inputs widget that combines fields for RGB, HSV and Hex values."""
+
     DEFAULT_CSS = """
     ColorInputs {
         width: auto;
@@ -452,7 +460,7 @@ class ColorInputs(Widget):
         classes: str | None = None,
         disabled: bool = False,
     ) -> None:
-        """Create a color inputs widget that combines fields for RGB, HSV and Hex values.
+        """Create a color inputs widget.
 
         Args:
             color: The initial color value.

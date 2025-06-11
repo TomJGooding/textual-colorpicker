@@ -22,6 +22,8 @@ _GRADIENT_COLORS = [
 
 
 class HuePicker(Widget):
+    """A hue picker widget."""
+
     ALLOW_SELECT = False
 
     DEFAULT_CSS = """

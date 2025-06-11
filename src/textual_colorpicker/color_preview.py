@@ -6,6 +6,8 @@ from textual.widget import Widget
 
 
 class ColorPreview(Widget):
+    """A color preview widget."""
+
     color: reactive[Color] = reactive(Color(255, 0, 0))
     """Color to display in the preview."""
 

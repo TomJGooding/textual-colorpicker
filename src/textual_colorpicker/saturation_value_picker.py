@@ -12,6 +12,8 @@ from textual.widget import Widget
 
 
 class SaturationValuePicker(Widget):
+    """A two-dimensional saturation/value picker widget."""
+
     ALLOW_SELECT = False
 
     hsv = reactive(HSV(0.0, 1.0, 1.0), init=False)
@@ -43,7 +45,7 @@ class SaturationValuePicker(Widget):
         classes: str | None = None,
         disabled: bool = False,
     ) -> None:
-        """Create a two-dimensional saturation/value picker widget.
+        """Create a saturation/value picker widget.
 
         Args:
             hsv: The initial HSV (Hue, Saturation, Value) values in the range 0 to 1.
