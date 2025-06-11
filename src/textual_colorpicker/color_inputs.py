@@ -129,24 +129,27 @@ class RgbInputs(Widget):
         event.stop()
         validation_result = event.validation_result
         assert validation_result is not None
-        # If the value is not a number, set the input to zero.
         if not validation_result.is_valid:
-            if any(
-                isinstance(failure, Integer.NotANumber)
-                for failure in validation_result.failures
-            ):
+            failure = validation_result.failures[0]
+            # If the value is not a number, set the input to zero.
+            if isinstance(failure, Integer.NotANumber):
                 event.input.value = str(0)
+            # If the value is not in range, set the input to the clamped value.
+            # NOTE: The value may also be a float, so we convert it as necessary.
+            elif isinstance(failure, Integer.NotInRange):
+                clamped_value = clamp(float(event.value), 0, 255)
+                event.input.value = str(int(clamped_value))
+            # If the value is a float, round to the nearest integer.
+            elif isinstance(failure, Integer.NotAnInteger):
+                rounded_value = int(float(event.value) + 0.5)
+                event.input.value = str(rounded_value)
 
-        # If the value is a float, round to the nearest integer.
-        r = int(float(self.query_one(".--red-input", Input).value) + 0.5)
-        g = int(float(self.query_one(".--green-input", Input).value) + 0.5)
-        b = int(float(self.query_one(".--blue-input", Input).value) + 0.5)
+        r = int(self.query_one(".--red-input", Input).value)
+        g = int(self.query_one(".--green-input", Input).value)
+        b = int(self.query_one(".--blue-input", Input).value)
+        color = Color(r, g, b)
 
-        clamped_color = Color(r, g, b).clamped
-        # If the value is not in range, set the input to the clamped value.
-        self._update_all_from_color(clamped_color)
-
-        self.color = clamped_color
+        self.color = color
 
 
 class HsvInputs(Widget):
@@ -277,28 +280,28 @@ class HsvInputs(Widget):
         event.stop()
         validation_result = event.validation_result
         assert validation_result is not None
-        # If the value is not a number, set the input to zero.
         if not validation_result.is_valid:
-            if any(
-                isinstance(failure, Integer.NotANumber)
-                for failure in validation_result.failures
-            ):
+            failure = validation_result.failures[0]
+            # If the value is not a number, set the input to zero.
+            if isinstance(failure, Integer.NotANumber):
                 event.input.value = str(0)
+            # If the value is not in range, set the input to the clamped value.
+            # NOTE: The value may also be a float, so we convert it as necessary.
+            elif isinstance(failure, Integer.NotInRange):
+                max = 360 if event.input.has_class(".--hue-input") else 100
+                clamped_value = clamp(float(event.value), 0, max)
+                event.input.value = str(int(clamped_value))
+            # If the value is a float, round to the nearest integer.
+            elif isinstance(failure, Integer.NotAnInteger):
+                rounded_value = int(float(event.value) + 0.5)
+                event.input.value = str(rounded_value)
 
-        # If the value is a float, round to the nearest integer.
-        h = int(float(self.query_one(".--hue-input", Input).value) + 0.5)
-        s = int(float(self.query_one(".--saturation-input", Input).value) + 0.5)
-        v = int(float(self.query_one(".--value-input", Input).value) + 0.5)
+        h = int(self.query_one(".--hue-input", Input).value)
+        s = int(self.query_one(".--saturation-input", Input).value)
+        v = int(self.query_one(".--value-input", Input).value)
+        hsv = HSV(h / 360, s / 100, v / 100)
 
-        clamped_hsv = HSV(
-            clamp(h / 360, 0.0, 1.0),
-            clamp(s / 100, 0.0, 1.0),
-            clamp(v / 100, 0.0, 1.0),
-        )
-        # If the value is not in range, set the input to the clamped value.
-        self._update_all_from_hsv(clamped_hsv)
-
-        self.hsv = clamped_hsv
+        self.hsv = hsv
 
 
 class HexInput(Widget):
