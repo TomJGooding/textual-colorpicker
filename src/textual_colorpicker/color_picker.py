@@ -83,11 +83,12 @@ class ColorPicker(Widget):
         return color.clamped
 
     def watch_color(self) -> None:
-        self._update_all_from_color(self.color)
+        self._update_all_from_color()
 
-    def _update_all_from_color(self, color: Color) -> None:
+    def _update_all_from_color(self) -> None:
         if not self.is_mounted:
             return
+        color = self.color
         self.query_one(ColorPreview).color = color
         self.query_one(ColorInputs).color = color
 

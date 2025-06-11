@@ -103,19 +103,18 @@ class RgbInputs(Widget):
         return color.clamped
 
     def watch_color(self) -> None:
-        self._update_all_from_color(self.color)
+        self._update_all_from_color()
 
         self.post_message(self.Changed(self, self.color))
 
-    def _update_all_from_color(self, color: Color) -> None:
+    def _update_all_from_color(self) -> None:
         if not self.is_mounted:
             return
         red_input = self.query_one(".--red-input", Input)
         green_input = self.query_one(".--green-input", Input)
         blue_input = self.query_one(".--blue-input", Input)
 
-        clamped_color = color.clamped
-        r, g, b = clamped_color.rgb
+        r, g, b = self.color.rgb
 
         red_input.value = str(r)
         green_input.value = str(g)
@@ -248,7 +247,7 @@ class HsvInputs(Widget):
         return clamped_hsv
 
     def watch_hsv(self) -> None:
-        self._update_all_from_hsv(self.hsv)
+        self._update_all_from_hsv()
 
         self.post_message(self.Changed(self, self.hsv))
 
@@ -259,14 +258,14 @@ class HsvInputs(Widget):
 
         return h, s, v
 
-    def _update_all_from_hsv(self, hsv: HSV) -> None:
+    def _update_all_from_hsv(self) -> None:
         if not self.is_mounted:
             return
         hue_input = self.query_one(".--hue-input", Input)
         saturation_input = self.query_one(".--saturation-input", Input)
         value_input = self.query_one(".--value-input", Input)
 
-        h, s, v = self._hsv_scaled_integers(hsv)
+        h, s, v = self._hsv_scaled_integers(self.hsv)
 
         hue_input.value = str(h)
         saturation_input.value = str(s)
@@ -487,13 +486,14 @@ class ColorInputs(Widget):
         return color.clamped
 
     def watch_color(self) -> None:
-        self._update_all_from_color(self.color)
+        self._update_all_from_color()
 
         self.post_message(self.Changed(self, self.color))
 
-    def _update_all_from_color(self, color: Color) -> None:
+    def _update_all_from_color(self) -> None:
         if not self.is_mounted:
             return
+        color = self.color
         h, s, v = color.hsv
         hex = color.hex
         self.query_one(RgbInputs).color = color
