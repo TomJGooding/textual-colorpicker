@@ -150,6 +150,10 @@ class RgbInputs(Widget):
 
         self.color = color
 
+    @on(Input.Changed)
+    def _on_input_changed(self, event: Input.Changed) -> None:
+        event.stop()
+
 
 class HsvInputs(Widget):
     """An HSV inputs widget that combines fields for Hue, Saturation and Value values."""
@@ -302,6 +306,10 @@ class HsvInputs(Widget):
 
         self.hsv = hsv
 
+    @on(Input.Changed)
+    def _on_input_changed(self, event: Input.Changed) -> None:
+        event.stop()
+
 
 class HexInput(Widget):
     """A hex color input widget."""
@@ -414,6 +422,10 @@ class HexInput(Widget):
 
         hex_color = f"#{hex_value.upper()}"
         self.value = hex_color
+
+    @on(Input.Changed)
+    def _on_input_changed(self, event: Input.Changed) -> None:
+        event.stop()
 
 
 class ColorInputs(Widget):
