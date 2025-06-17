@@ -6,7 +6,7 @@ from textual.containers import VerticalGroup
 from textual.reactive import var
 from textual.widget import Widget
 
-from textual_colorpicker.color_inputs import ColorInputs
+from textual_colorpicker.color_inputs import ColorInputs, HexInput, HsvInputs, RgbInputs
 from textual_colorpicker.color_preview import ColorPreview
 from textual_colorpicker.hue_picker import HuePicker
 from textual_colorpicker.saturation_value_picker import SaturationValuePicker
@@ -89,16 +89,15 @@ class ColorPicker(Widget):
         if not self.is_mounted:
             return
         color = self.color
+        hsv = color.hsv
         self.query_one(ColorPreview).color = color
-        self.query_one(ColorInputs).color = color
 
-        h, s, v = color.hsv
-        self.query_one(HuePicker).hue = h
-        self.query_one(SaturationValuePicker).hsv = HSV(h, s, v)
+        self.query_one(HuePicker).hue = hsv.h
+        self.query_one(SaturationValuePicker).hsv = hsv
 
-    def _on_color_inputs_changed(self, event: ColorInputs.Changed) -> None:
-        event.stop()
-        self.color = event.color
+        self.query_one(RgbInputs).color = color
+        self.query_one(HsvInputs).hsv = hsv
+        self.query_one(HexInput).value = color.hex
 
     def _on_hue_picker_changed(self, event: HuePicker.Changed) -> None:
         event.stop()
@@ -114,6 +113,20 @@ class ColorPicker(Widget):
         h, _, _ = self.color.hsv
         _, s, v = event.hsv
         color = Color.from_hsv(h, s, v)
+        self.color = color
+
+    def _on_rgb_inputs_changed(self, event: RgbInputs.Changed) -> None:
+        event.stop()
+        self.color = event.color
+
+    def _on_hsv_inputs_changed(self, event: HsvInputs.Changed) -> None:
+        event.stop()
+        color = Color.from_hsv(*event.hsv)
+        self.color = color
+
+    def _on_hex_input_changed(self, event: HexInput.Changed) -> None:
+        event.stop()
+        color = Color.parse(event.value)
         self.color = color
 
 

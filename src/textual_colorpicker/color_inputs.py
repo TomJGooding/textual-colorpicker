@@ -447,24 +447,6 @@ class ColorInputs(Widget):
     }
     """
 
-    color: var[Color] = var(Color(255, 0, 0), init=False)
-    """The current color value."""
-
-    class Changed(Message):
-        """Posted when the color value changes.
-
-        This message can be handled using an `on_color_inputs_changed` method.
-        """
-
-        def __init__(self, color_inputs: ColorInputs, color: Color) -> None:
-            super().__init__()
-            self.color: Color = color
-            self.color_inputs: ColorInputs = color_inputs
-
-        @property
-        def control(self) -> ColorInputs:
-            return self.color_inputs
-
     def __init__(
         self,
         color: Color = Color(255, 0, 0),
@@ -484,47 +466,14 @@ class ColorInputs(Widget):
             disabled: Whether the widget is disabled or not.
         """
         super().__init__(name=name, id=id, classes=classes, disabled=disabled)
-        self.color = color
+        self._color = color.clamped
 
     def compose(self) -> ComposeResult:
-        h, s, v = self.color.hsv
-        hex = self.color.hex
+        color = self._color
         with HorizontalGroup():
-            yield RgbInputs(self.color)
-            yield HsvInputs(HSV(h, s, v))
-        yield HexInput(hex)
-
-    def validate_color(self, color: Color) -> Color:
-        return color.clamped
-
-    def watch_color(self) -> None:
-        self._update_all_from_color()
-
-        self.post_message(self.Changed(self, self.color))
-
-    def _update_all_from_color(self) -> None:
-        if not self.is_mounted:
-            return
-        color = self.color
-        h, s, v = color.hsv
-        hex = color.hex
-        self.query_one(RgbInputs).color = color
-        self.query_one(HsvInputs).hsv = HSV(h, s, v)
-        self.query_one(HexInput).value = hex
-
-    def _on_rgb_inputs_changed(self, event: RgbInputs.Changed) -> None:
-        event.stop()
-        self.color = event.color
-
-    def _on_hsv_inputs_changed(self, event: HsvInputs.Changed) -> None:
-        event.stop()
-        color = Color.from_hsv(*event.hsv)
-        self.color = color
-
-    def _on_hex_input_changed(self, event: HexInput.Changed) -> None:
-        event.stop()
-        color = Color.parse(event.value)
-        self.color = color
+            yield RgbInputs(color)
+            yield HsvInputs(color.hsv)
+        yield HexInput(color.hex)
 
 
 if __name__ == "__main__":

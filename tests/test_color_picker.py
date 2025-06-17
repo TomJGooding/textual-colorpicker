@@ -1,7 +1,7 @@
 from textual.app import App, ComposeResult
 from textual.color import HSV, Color
 
-from textual_colorpicker.color_inputs import ColorInputs
+from textual_colorpicker.color_inputs import ColorInputs, HexInput, HsvInputs, RgbInputs
 from textual_colorpicker.color_picker import ColorPicker
 from textual_colorpicker.color_preview import ColorPreview
 from textual_colorpicker.hue_picker import HuePicker
@@ -26,32 +26,26 @@ async def test_changing_color_updates_all_widgets() -> None:
     async with app.run_test() as pilot:
         color_picker = pilot.app.query_one(ColorPicker)
 
+        hue_picker = pilot.app.query_one(HuePicker)
+        saturation_value_picker = pilot.app.query_one(SaturationValuePicker)
+
         color_picker.color = Color(0, 255, 255)
         await pilot.pause()
+        expected_color = Color(0, 255, 255)
+        expected_hsv = HSV(0.5, 1.0, 1.0)
 
         color_preview = pilot.app.query_one(ColorPreview)
-        assert color_preview.color == Color(0, 255, 255)
+        assert color_preview.color == expected_color
 
-        color_inputs = pilot.app.query_one(ColorInputs)
-        assert color_inputs.color == Color(0, 255, 255)
+        assert hue_picker.hue == expected_hsv.h
+        assert saturation_value_picker.hsv == expected_hsv
 
-        hue_picker = pilot.app.query_one(HuePicker)
-        assert hue_picker.hue == 0.5
-
-        saturation_value_picker = pilot.app.query_one(SaturationValuePicker)
-        assert saturation_value_picker.hsv == HSV(0.5, 1.0, 1.0)
-
-
-async def test_updating_color_inputs_changes_color() -> None:
-    app = ColorPickerApp()
-    async with app.run_test() as pilot:
-        color_picker = pilot.app.query_one(ColorPicker)
-        color_inputs = pilot.app.query_one(ColorInputs)
-
-        color_inputs.color = Color(128, 0, 0)
-        await pilot.pause()
-
-        assert color_picker.color == Color(128, 0, 0)
+        rgb_inputs = pilot.app.query_one(RgbInputs)
+        assert rgb_inputs.color == expected_color
+        hsv_inputs = pilot.app.query_one(HsvInputs)
+        assert hsv_inputs.hsv == expected_hsv
+        hex_input = pilot.app.query_one(HexInput)
+        assert hex_input.value == expected_color.hex
 
 
 async def test_updating_hue_picker_changes_color() -> None:
@@ -76,3 +70,39 @@ async def test_updating_saturation_value_picker_changes_color() -> None:
         await pilot.pause()
 
         assert color_picker.color == Color(255, 255, 255)
+
+
+async def test_updating_rgb_inputs_changes_color() -> None:
+    app = ColorPickerApp()
+    async with app.run_test() as pilot:
+        color_picker = pilot.app.query_one(ColorPicker)
+        rgb_inputs = pilot.app.query_one(RgbInputs)
+
+        rgb_inputs.color = Color(0, 255, 255)
+        await pilot.pause()
+
+        assert color_picker.color == Color(0, 255, 255)
+
+
+async def test_updating_hsv_inputs_changes_color() -> None:
+    app = ColorPickerApp()
+    async with app.run_test() as pilot:
+        color_picker = pilot.app.query_one(ColorPicker)
+        hsv_inputs = pilot.app.query_one(HsvInputs)
+
+        hsv_inputs.hsv = HSV(0.5, 1.0, 1.0)
+        await pilot.pause()
+
+        assert color_picker.color == Color(0, 255, 255)
+
+
+async def test_updating_hex_input_changes_color() -> None:
+    app = ColorPickerApp()
+    async with app.run_test() as pilot:
+        color_picker = pilot.app.query_one(ColorPicker)
+        hex_input = pilot.app.query_one(HexInput)
+
+        hex_input.value = "#00FFFF"
+        await pilot.pause()
+
+        assert color_picker.color == Color(0, 255, 255)
