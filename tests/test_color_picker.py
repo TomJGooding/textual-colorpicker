@@ -9,8 +9,15 @@ from textual_colorpicker.saturation_value_picker import SaturationValuePicker
 
 
 class ColorPickerApp(App):
+    def __init__(self) -> None:
+        super().__init__()
+        self.messages: list[str] = []
+
     def compose(self) -> ComposeResult:
         yield ColorPicker()
+
+    def on_color_picker_changed(self, event: HuePicker.Changed) -> None:
+        self.messages.append(event.__class__.__name__)
 
 
 def test_color_value_is_clamped() -> None:
@@ -131,3 +138,22 @@ async def test_updating_hex_input_changes_color() -> None:
         await pilot.pause()
 
         assert color_picker.color == Color(0, 255, 255)
+
+
+async def test_changed_color_posts_message() -> None:
+    app = ColorPickerApp()
+    async with app.run_test() as pilot:
+        color_picker = pilot.app.query_one(ColorPicker)
+        expected_messages: list[str] = []
+        assert app.messages == expected_messages
+
+        color_picker.color = Color(0, 0, 0)
+        await pilot.pause()
+        expected_messages.append("Changed")
+        assert app.messages == expected_messages
+
+        color_picker._hsv = HSV(1.0, 1.0, 0.0)  # Black
+        await pilot.pause()
+        # The RGB has not changed so no message should have been posted
+        assert color_picker.color == Color(0, 0, 0)
+        assert app.messages == expected_messages

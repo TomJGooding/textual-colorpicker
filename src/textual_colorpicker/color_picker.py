@@ -3,6 +3,7 @@ from __future__ import annotations
 from textual.app import ComposeResult
 from textual.color import HSV, Color
 from textual.containers import VerticalGroup
+from textual.message import Message
 from textual.reactive import var
 from textual.widget import Widget
 
@@ -52,6 +53,21 @@ class ColorPicker(Widget):
     _hsv: var[HSV] = var(HSV(0.0, 1.0, 1.0), init=False)
     """The current HSV color value."""
 
+    class Changed(Message):
+        """Posted when the color value changes.
+
+        This message can be handled using an `on_color_picker_changed` method.
+        """
+
+        def __init__(self, color_picker: ColorPicker, color: Color) -> None:
+            super().__init__()
+            self.color: Color = color
+            self.color_picker = color_picker
+
+        @property
+        def control(self) -> ColorPicker:
+            return self.color_picker
+
     def __init__(
         self,
         color: Color = Color(255, 0, 0),
@@ -88,12 +104,24 @@ class ColorPicker(Widget):
         return color.clamped
 
     def watch_color(self) -> None:
-        self._update_all_from_color()
+        hsv = self.color.hsv
+        self.set_reactive(ColorPicker._hsv, hsv)
+
+        self._update_all_from_color_and_hsv()
+
+        self.post_message(self.Changed(self, self.color))
 
     def _watch__hsv(self) -> None:
-        self._update_all_from_hsv()
+        old_color = self.color
+        new_color = Color.from_hsv(*self._hsv)
+        self.set_reactive(ColorPicker.color, new_color)
 
-    def _update_all_from_color(self) -> None:
+        self._update_all_from_color_and_hsv()
+
+        if new_color != old_color:
+            self.post_message(self.Changed(self, self.color))
+
+    def _update_all_from_color_and_hsv(self) -> None:
         if not self.is_mounted:
             return
         color = self.color
@@ -101,27 +129,10 @@ class ColorPicker(Widget):
         self.query_one(RgbInputs).color = color
         self.query_one(HexInput).value = color.hex
 
-        hsv = color.hsv
-        self.set_reactive(ColorPicker._hsv, hsv)
-
-        self.query_one(HuePicker).hue = hsv.h
-        self.query_one(SaturationValuePicker).hsv = hsv
-        self.query_one(HsvInputs).hsv = hsv
-
-    def _update_all_from_hsv(self) -> None:
-        if not self.is_mounted:
-            return
         hsv = self._hsv
         self.query_one(HuePicker).hue = hsv.h
         self.query_one(SaturationValuePicker).hsv = hsv
         self.query_one(HsvInputs).hsv = hsv
-
-        color = Color.from_hsv(*hsv)
-        self.set_reactive(ColorPicker.color, color)
-
-        self.query_one(ColorPreview).color = color
-        self.query_one(RgbInputs).color = color
-        self.query_one(HexInput).value = color.hex
 
     def _on_hue_picker_changed(self, event: HuePicker.Changed) -> None:
         event.stop()
