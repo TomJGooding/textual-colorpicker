@@ -49,6 +49,9 @@ class ColorPicker(Widget):
     color: var[Color] = var(Color(255, 0, 0), init=False)
     """The current color value."""
 
+    _hsv: var[HSV] = var(HSV(0.0, 1.0, 1.0), init=False)
+    """The current HSV color value."""
+
     def __init__(
         self,
         color: Color = Color(255, 0, 0),
@@ -68,13 +71,15 @@ class ColorPicker(Widget):
             disabled: Whether the widget is disabled or not.
         """
         super().__init__(name=name, id=id, classes=classes, disabled=disabled)
+        color = color.clamped
         self.color = color
+        self._hsv = color.hsv
 
     def compose(self) -> ComposeResult:
-        h, s, v = self.color.hsv
+        hsv = self._hsv
         with VerticalGroup():
-            yield SaturationValuePicker(HSV(h, s, v))
-            yield HuePicker(h)
+            yield SaturationValuePicker(hsv)
+            yield HuePicker(hsv.h)
         with VerticalGroup():
             yield ColorPreview(self.color)
             yield ColorInputs(self.color)
@@ -85,35 +90,52 @@ class ColorPicker(Widget):
     def watch_color(self) -> None:
         self._update_all_from_color()
 
+    def _watch__hsv(self) -> None:
+        self._update_all_from_hsv()
+
     def _update_all_from_color(self) -> None:
         if not self.is_mounted:
             return
         color = self.color
-        hsv = color.hsv
         self.query_one(ColorPreview).color = color
+        self.query_one(RgbInputs).color = color
+        self.query_one(HexInput).value = color.hex
+
+        hsv = color.hsv
+        self.set_reactive(ColorPicker._hsv, hsv)
 
         self.query_one(HuePicker).hue = hsv.h
         self.query_one(SaturationValuePicker).hsv = hsv
-
-        self.query_one(RgbInputs).color = color
         self.query_one(HsvInputs).hsv = hsv
+
+    def _update_all_from_hsv(self) -> None:
+        if not self.is_mounted:
+            return
+        hsv = self._hsv
+        self.query_one(HuePicker).hue = hsv.h
+        self.query_one(SaturationValuePicker).hsv = hsv
+        self.query_one(HsvInputs).hsv = hsv
+
+        color = Color.from_hsv(*hsv)
+        self.set_reactive(ColorPicker.color, color)
+
+        self.query_one(ColorPreview).color = color
+        self.query_one(RgbInputs).color = color
         self.query_one(HexInput).value = color.hex
 
     def _on_hue_picker_changed(self, event: HuePicker.Changed) -> None:
         event.stop()
         h = event.hue
-        _, s, v = self.color.hsv
-        color = Color.from_hsv(h, s, v)
-        self.color = color
+        _, s, v = self._hsv
+        self._hsv = HSV(h, s, v)
 
     def _on_saturation_value_picker_changed(
         self, event: SaturationValuePicker.Changed
     ) -> None:
         event.stop()
-        h, _, _ = self.color.hsv
+        h, _, _ = self._hsv
         _, s, v = event.hsv
-        color = Color.from_hsv(h, s, v)
-        self.color = color
+        self._hsv = HSV(h, s, v)
 
     def _on_rgb_inputs_changed(self, event: RgbInputs.Changed) -> None:
         event.stop()
@@ -121,8 +143,7 @@ class ColorPicker(Widget):
 
     def _on_hsv_inputs_changed(self, event: HsvInputs.Changed) -> None:
         event.stop()
-        color = Color.from_hsv(*event.hsv)
-        self.color = color
+        self._hsv = event.hsv
 
     def _on_hex_input_changed(self, event: HexInput.Changed) -> None:
         event.stop()

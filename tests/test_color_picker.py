@@ -26,9 +26,6 @@ async def test_changing_color_updates_all_widgets() -> None:
     async with app.run_test() as pilot:
         color_picker = pilot.app.query_one(ColorPicker)
 
-        hue_picker = pilot.app.query_one(HuePicker)
-        saturation_value_picker = pilot.app.query_one(SaturationValuePicker)
-
         color_picker.color = Color(0, 255, 255)
         await pilot.pause()
         expected_color = Color(0, 255, 255)
@@ -37,14 +34,42 @@ async def test_changing_color_updates_all_widgets() -> None:
         color_preview = pilot.app.query_one(ColorPreview)
         assert color_preview.color == expected_color
 
+        hue_picker = pilot.app.query_one(HuePicker)
+        saturation_value_picker = pilot.app.query_one(SaturationValuePicker)
         assert hue_picker.hue == expected_hsv.h
         assert saturation_value_picker.hsv == expected_hsv
 
         rgb_inputs = pilot.app.query_one(RgbInputs)
-        assert rgb_inputs.color == expected_color
         hsv_inputs = pilot.app.query_one(HsvInputs)
-        assert hsv_inputs.hsv == expected_hsv
         hex_input = pilot.app.query_one(HexInput)
+        assert rgb_inputs.color == expected_color
+        assert hsv_inputs.hsv == expected_hsv
+        assert hex_input.value == expected_color.hex
+
+
+async def test_changing_hsv_updates_all_widgets() -> None:
+    app = ColorPickerApp()
+    async with app.run_test() as pilot:
+        color_picker = pilot.app.query_one(ColorPicker)
+
+        color_picker._hsv = HSV(0.5, 1.0, 1.0)
+        await pilot.pause()
+        expected_color = Color(0, 255, 255)
+        expected_hsv = HSV(0.5, 1.0, 1.0)
+
+        color_preview = pilot.app.query_one(ColorPreview)
+        assert color_preview.color == expected_color
+
+        hue_picker = pilot.app.query_one(HuePicker)
+        saturation_value_picker = pilot.app.query_one(SaturationValuePicker)
+        assert hue_picker.hue == expected_hsv.h
+        assert saturation_value_picker.hsv == expected_hsv
+
+        rgb_inputs = pilot.app.query_one(RgbInputs)
+        hsv_inputs = pilot.app.query_one(HsvInputs)
+        hex_input = pilot.app.query_one(HexInput)
+        assert rgb_inputs.color == expected_color
+        assert hsv_inputs.hsv == expected_hsv
         assert hex_input.value == expected_color.hex
 
 
