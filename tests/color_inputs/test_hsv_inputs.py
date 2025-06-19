@@ -1,5 +1,5 @@
 from textual.app import App, ComposeResult
-from textual.color import HSV
+from textual.color import HSV, Color
 from textual.widgets import Input
 
 from textual_colorpicker.color_inputs import HsvInputs
@@ -140,3 +140,20 @@ async def test_submitted_value_clamped_if_not_in_range() -> None:
         await pilot.pause()
         assert saturation_input.value == str(0)
         assert hsv_inputs.hsv == HSV(0.0, 0.0, 1.0)
+
+
+async def test_hsv_updated_only_when_input_changed() -> None:
+    """Test that the HSV is only updated when the input value has changed.
+    This prevents unwanted updates from the scaled integer values.
+    """
+    app = HSVInputsApp()
+    async with app.run_test() as pilot:
+        hsv_inputs = pilot.app.query_one(HsvInputs)
+        hsv = Color(255, 78, 78).hsv
+        hsv_inputs.hsv = hsv
+
+        hue_input = hsv_inputs.query_one(".--hue-input", Input)
+        await hue_input.action_submit()
+        await pilot.pause()
+
+        assert hsv_inputs.hsv == hsv  # No change

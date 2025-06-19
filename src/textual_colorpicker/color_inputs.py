@@ -214,10 +214,12 @@ class HsvInputs(Widget):
             disabled: Whether the widget is disabled or not.
         """
         super().__init__(name=name, id=id, classes=classes, disabled=disabled)
+        hsv = self.validate_hsv(hsv)
         self.hsv = hsv
+        self._hsv_scaled_integers = self._get_hsv_scaled_integers(hsv)
 
     def compose(self) -> ComposeResult:
-        h, s, v = self._hsv_scaled_integers(self.hsv)
+        h, s, v = self._hsv_scaled_integers
         with HorizontalGroup():
             yield Label("H:")
             yield Input(
@@ -255,7 +257,7 @@ class HsvInputs(Widget):
 
         self.post_message(self.Changed(self, self.hsv))
 
-    def _hsv_scaled_integers(self, hsv: HSV) -> tuple[int, int, int]:
+    def _get_hsv_scaled_integers(self, hsv: HSV) -> tuple[int, int, int]:
         h = int(hsv.h * 360 + 0.5)
         s = int(hsv.s * 100 + 0.5)
         v = int(hsv.v * 100 + 0.5)
@@ -263,13 +265,15 @@ class HsvInputs(Widget):
         return h, s, v
 
     def _update_all_from_hsv(self) -> None:
+        self._hsv_scaled_integers = self._get_hsv_scaled_integers(self.hsv)
+
         if not self.is_mounted:
             return
         hue_input = self.query_one(".--hue-input", Input)
         saturation_input = self.query_one(".--saturation-input", Input)
         value_input = self.query_one(".--value-input", Input)
 
-        h, s, v = self._hsv_scaled_integers(self.hsv)
+        h, s, v = self._hsv_scaled_integers
 
         hue_input.value = str(h)
         saturation_input.value = str(s)
@@ -281,6 +285,7 @@ class HsvInputs(Widget):
         self, event: Input.Blurred | Input.Submitted
     ) -> None:
         event.stop()
+        input_corrected = False
         validation_result = event.validation_result
         assert validation_result is not None
         if not validation_result.is_valid:
@@ -299,12 +304,17 @@ class HsvInputs(Widget):
                 rounded_value = int(float(event.value) + 0.5)
                 event.input.value = str(rounded_value)
 
+            input_corrected = True
+
         h = int(self.query_one(".--hue-input", Input).value)
         s = int(self.query_one(".--saturation-input", Input).value)
         v = int(self.query_one(".--value-input", Input).value)
-        hsv = HSV(h / 360, s / 100, v / 100)
 
-        self.hsv = hsv
+        # Update the HSV only if the input value has changed.
+        # This prevents unwanted updates from the scaled integer values.
+        if (h, s, v) != self._hsv_scaled_integers or input_corrected:
+            hsv = HSV(h / 360, s / 100, v / 100)
+            self.hsv = hsv
 
     @on(Input.Changed)
     def _on_input_changed(self, event: Input.Changed) -> None:
