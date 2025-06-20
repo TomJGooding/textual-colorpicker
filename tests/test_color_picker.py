@@ -1,7 +1,7 @@
 from textual.app import App, ComposeResult
 from textual.color import HSV, Color
 
-from textual_colorpicker.color_inputs import ColorInputs, HexInput, HsvInputs, RgbInputs
+from textual_colorpicker.color_inputs import HexInput, HsvInputs, RgbInputs
 from textual_colorpicker.color_picker import ColorPicker
 from textual_colorpicker.color_preview import ColorPreview
 from textual_colorpicker.hue_picker import HuePicker
