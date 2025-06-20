@@ -11,7 +11,7 @@ textual-colorpicker provides a `ColorPicker` widget for use in Textual.
 ```python
 from textual.app import App, ComposeResult
 
-from textual_colorpicker.color_picker import ColorPicker
+from textual_colorpicker import ColorPicker
 
 
 class ColorPickerApp(App):
