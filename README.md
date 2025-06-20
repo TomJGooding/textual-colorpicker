@@ -4,6 +4,14 @@ A color picker widget for [Textual](https://github.com/Textualize/textual).
 
 ![screenshot](https://raw.githubusercontent.com/TomJGooding/textual-colorpicker/main/assets/screenshot.png)
 
+## Installation
+
+Install textual-colorpicker using pip:
+
+```
+pip install textual-colorpicker
+```
+
 ## Usage
 
 textual-colorpicker provides a `ColorPicker` widget for use in Textual.
@@ -34,7 +42,7 @@ if __name__ == "__main__":
 
 Textual apps run in the terminal, which work in terms of character cells rather
 than pixels. This means you obviously can't have the same fine-grained control
-for this color picker as usual.
+with the mouse for this color picker as usual.
 
 ## Contributing
 
